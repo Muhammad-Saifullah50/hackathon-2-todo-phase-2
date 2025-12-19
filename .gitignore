@@ -48,6 +48,18 @@ htmlcov/
 *~
 .DS_Store
 
+# Environment
+.env
+.env.*
+*.log
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
 # Type checking
 .mypy_cache/
 .dmypy.json
