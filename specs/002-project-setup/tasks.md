@@ -121,9 +121,9 @@ description: "Task breakdown for Project Setup & Architecture feature"
 
 - [X] T044 [US1] Create backend/tests/integration/test_health.py with smoke test for GET /health endpoint
 
-- [ ] T045 [P] [US1] Create frontend/tests/setup.ts with Vitest global setup and @testing-library/jest-dom
+- [X] T045 [P] [US1] Create frontend/tests/setup.ts with Vitest global setup and @testing-library/jest-dom
 
-- [ ] T046 [US1] Create frontend/tests/components/button.test.tsx with basic component test
+- [X] T046 [US1] Create frontend/tests/components/button.test.tsx with basic component test
 
 
 
@@ -439,11 +439,11 @@ description: "Task breakdown for Project Setup & Architecture feature"
 
 
 
-- [ ] T120 [P] [US4] Add vitest, @testing-library/react, @testing-library/jest-dom, jsdom to frontend/package.json
+- [X] T120 [P] [US4] Add vitest, @testing-library/react, @testing-library/jest-dom, jsdom to frontend/package.json
 
-- [ ] T121 [P] [US4] Create frontend/vitest.config.ts with jsdom environment and coverage configuration
+- [X] T121 [P] [US4] Create frontend/vitest.config.ts with jsdom environment and coverage configuration
 
-- [ ] T122 [US4] Update frontend/tests/setup.ts with testing library matchers
+- [X] T122 [US4] Update frontend/tests/setup.ts with testing library matchers
 
 
 
@@ -463,7 +463,7 @@ description: "Task breakdown for Project Setup & Architecture feature"
 
 
 
-- [ ] T126 [P] [US4] Update frontend/tests/components/button.test.tsx with rendering and click tests
+- [X] T126 [P] [US4] Update frontend/tests/components/button.test.tsx with rendering and click tests
 
 - [ ] T127 [P] [US4] Create frontend/tests/app/page.test.tsx with test for Hello World page rendering
 
@@ -479,7 +479,7 @@ description: "Task breakdown for Project Setup & Architecture feature"
 
 - [ ] T130 [US4] Configure coverage reporting in frontend/vitest.config.ts (threshold: 70%)
 
-- [ ] T131 [US4] Add test:coverage scripts to backend/pyproject.toml and frontend/package.json
+- [X] T131 [US4] Add test:coverage scripts to backend/pyproject.toml and frontend/package.json
 
 
 
@@ -499,17 +499,19 @@ description: "Task breakdown for Project Setup & Architecture feature"
 
 
 
-- [ ] T135 [US4] Run pytest backend/tests/ and verify all backend tests pass (100% passing)
+- [X] T135 [US4] Run pytest backend/tests/ and verify all backend tests pass (100% passing)
 
 - [ ] T136 [US4] Run pytest --cov backend/tests/ and verify coverage report generated
 
-- [ ] T137 [US4] Run npm test in frontend/ and verify all frontend tests pass (100% passing)
+- [X] T137 [US4] Run npm test in frontend/ and verify all frontend tests pass (100% passing)
 
 - [ ] T138 [US4] Run npm run test:coverage in frontend/ and verify coverage report generated
 
 - [ ] T139 [US4] Verify test failure detection by intentionally breaking a test and confirming it fails
 
 - [ ] T140 [US4] 
+
+ 
 
  Verify all smoke tests are independent and can run in isolation
 
