@@ -216,7 +216,7 @@ Response: { status: 200, success: true, data: { updated_count: number } }
 - Bulk selection and delete
 - Undo option (optional)
 - Soft delete vs hard delete implementation
-
+why 
 **API Endpoints**:
 ```
 DELETE /api/v1/tasks/{task_id}

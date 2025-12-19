@@ -46,6 +46,31 @@ FastAPI-based backend for the Todo Application.
    The API will be available at http://localhost:8000.
    Docs: http://localhost:8000/docs
 
+## Database
+
+### Migrations
+
+This project uses Alembic for database migrations. To manage the schema:
+
+```bash
+# Apply migrations to the latest version
+uv run alembic upgrade head
+
+# Rollback one migration
+uv run alembic downgrade -1
+
+# Generate a new migration (after modifying models)
+uv run alembic revision --autogenerate -m "description"
+```
+
+### Seeding
+
+To populate the database with development data (idempotent):
+
+```bash
+uv run python -m scripts.seed_dev
+```
+
 ## Testing
 
 Run tests with pytest:

@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api import health
+from src.api.routes import health
 from src.config import settings
 
 # Users and tasks routers will be added as they are implemented

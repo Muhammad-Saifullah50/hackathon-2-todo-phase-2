@@ -8,9 +8,9 @@ from alembic import context
 
 # Import SQLModel and models for metadata
 from sqlmodel import SQLModel
-from backend.src.models.user import User  # noqa
-from backend.src.models.task import Task  # noqa
-from backend.src.config import settings
+from src.models.user import User  # noqa
+from src.models.task import Task  # noqa
+from src.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

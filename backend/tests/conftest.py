@@ -10,13 +10,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlmodel import SQLModel
 from sqlmodel.pool import StaticPool
 
-from src.database import get_session
+from src.db.session import get_db
 from src.main import app
 
 # Import models to ensure they are registered with SQLModel.metadata
+from src.models import User, Task  # noqa
 
 # Use in-memory SQLite for tests to avoid external dependencies
-# logic would need adjustment if using Postgres specific features not supported by SQLite
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 
@@ -65,10 +65,10 @@ async def test_session(test_engine: Any) -> AsyncGenerator[AsyncSession]:
 async def client(test_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
     """Create a test client with a database session override."""
 
-    async def override_get_session() -> AsyncGenerator[AsyncSession]:
+    async def override_get_db() -> AsyncGenerator[AsyncSession]:
         yield test_session
 
-    app.dependency_overrides[get_session] = override_get_session
+    app.dependency_overrides[get_db] = override_get_db
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac

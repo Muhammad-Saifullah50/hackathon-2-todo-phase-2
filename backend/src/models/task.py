@@ -5,6 +5,8 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
+from .base import TimestampMixin
+
 if TYPE_CHECKING:
     from .user import User
 
@@ -46,14 +48,14 @@ class TaskBase(SQLModel):
     due_date: datetime | None = Field(default=None, description="Target completion date")
 
 
-class Task(TaskBase, table=True):
+class Task(TaskBase, TimestampMixin, table=True):
     """Database model for Task entity.
 
     Attributes:
         id: Unique UUID identifier for the task.
         user_id: Foreign key to the User who owns this task.
-        created_at: Timestamp when task was created.
-        updated_at: Timestamp when task was last modified.
+        created_at: Timestamp when task was created (from TimestampMixin).
+        updated_at: Timestamp when task was last modified (from TimestampMixin).
         user: Relationship to the parent User object.
     """
 
@@ -64,12 +66,6 @@ class Task(TaskBase, table=True):
     )
     user_id: UUID = Field(
         foreign_key="users.id", index=True, description="ID of the user who owns this task"
-    )
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Timestamp of task creation"
-    )
-    updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Timestamp of last update"
     )
 
     # Relationships
