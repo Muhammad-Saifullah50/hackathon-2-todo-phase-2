@@ -462,3 +462,9 @@ python -m src.main      # Direct execution
 ---
 
 **Remember:** The goal is to maintain a clean, testable, and user-friendly codebase. When in doubt, follow existing patterns and ask for clarification.
+
+## Active Technologies
+- Neon PostgreSQL 16+ (serverless cloud database with automatic scaling) (002-project-setup)
+
+## Recent Changes
+- 002-project-setup: Added Neon PostgreSQL 16+ (serverless cloud database with automatic scaling)
