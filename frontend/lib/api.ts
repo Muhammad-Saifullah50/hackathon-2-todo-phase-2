@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { authClient } from './auth-client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -15,8 +16,12 @@ const api = axios.create({
 
 // Request interceptor
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // Add auth token if available (Feature 3)
+    const { data } = await authClient.token();
+    if (data?.token) {
+      config.headers.Authorization = `Bearer ${data.token}`;
+    }
     return config;
   },
   (error) => {
@@ -31,8 +36,14 @@ api.interceptors.response.use(
   },
   (error) => {
     // Standardized error handling following ADR-0004
-    const message = error.response?.data?.error?.message || 'An unexpected error occurred';
+    const message = error.response?.data?.message || 'An unexpected error occurred';
     console.error(`[API Error] ${message}`, error);
+    
+    // Handle 401 Unauthorized - trigger logout if needed
+    if (error.response?.status === 401) {
+      console.warn('Session expired or unauthorized. Please login again.');
+    }
+    
     return Promise.reject(error);
   }
 );

@@ -6,11 +6,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.routes import health
+from src.api.routes import health, user
 from src.config import settings
 
-# Users and tasks routers will be added as they are implemented
-# from src.api import users, tasks
+# Tasks router will be added as it is implemented
+# from src.api.routes import tasks
 
 
 @asynccontextmanager
@@ -53,8 +53,8 @@ app.add_middleware(
 
 # Register routers
 app.include_router(health.router, prefix="/health", tags=["health"])
-# app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
-# app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["tasks"])
+app.include_router(user.router, prefix="/api/v1", tags=["users"])
+# app.include_router(tasks.router, prefix="/api/v1", tags=["tasks"])
 
 
 if __name__ == "__main__":
