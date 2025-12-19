@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 export default function Home() {
   return (
@@ -18,19 +18,21 @@ export default function Home() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-semibold">Hello World!</h2>
               <p className="text-lg leading-7 text-muted-foreground">
-                Welcome to the modernized version of our Todo application. 
-                Built with <strong>Next.js 15</strong>, <strong>React 19</strong>, 
-                and a <strong>FastAPI</strong> backend.
+                Welcome to the modernized version of our Todo application. Built with{' '}
+                <strong>Next.js 15</strong>, <strong>React 19</strong>, and a{' '}
+                <strong>FastAPI</strong> backend.
               </p>
             </div>
-            
+
             <div className="flex gap-4">
               <Button size="lg">Get Started</Button>
-              <Button variant="outline" size="lg">Learn More</Button>
+              <Button variant="outline" size="lg">
+                Learn More
+              </Button>
             </div>
           </CardContent>
         </Card>
-        
+
         <footer className="mt-12 text-center text-sm text-muted-foreground">
           <p>Hackathon 2 - Project Setup & Architecture</p>
         </footer>

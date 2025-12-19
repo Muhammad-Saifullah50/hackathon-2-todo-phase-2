@@ -12,3 +12,4 @@ async def test_health_check(client: AsyncClient) -> None:
     data = response.json()
     assert data["status"] == "healthy"
     assert data["service"] == "todo-api"
+    assert "database_connected" in data

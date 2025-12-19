@@ -4,7 +4,7 @@ FROM python:3.13-slim AS builder
 WORKDIR /app
 
 # Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.5.10 /uv /bin/uv
 
 # Copy dependency definition files
 COPY pyproject.toml uv.lock ./
@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy uv (optional, but useful for uv run)
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.5.10 /uv /bin/uv
 
 # Copy the environment from builder
 # uv creates the virtual environment in .venv by default
