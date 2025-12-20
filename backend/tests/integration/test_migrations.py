@@ -17,4 +17,4 @@ async def test_migration_tables_exist(test_engine: AsyncEngine) -> None:
         table_names = await conn.run_sync(get_table_names)
 
         assert "tasks" in table_names
-        assert "users" in table_names
+        assert "user" in table_names

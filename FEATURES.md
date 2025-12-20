@@ -90,32 +90,7 @@ This document outlines the features for converting the CLI Todo application into
 
 ## Phase 3: Core Task Management (5 Basic Features)
 
-### Feature 4: Task Creation
-**Branch**: TBD
-**Status**: Planned
 
-**Overview**: Enable authenticated users to create new tasks with title and optional description.
-
-**Key Deliverables**:
-- POST /api/v1/tasks endpoint
-- Create task form/UI component
-- Input validation (frontend and backend)
-- User-task association (ownership)
-- Success/error feedback
-- Optimistic UI updates
-
-**API Endpoint**:
-```
-POST /api/v1/tasks
-Authorization: Bearer <JWT>
-Body: { title, description? }
-Response: { status: 201, success: true, data: Task }
-```
-
-**Dependencies**:
-- Feature 3 (Authentication) must be complete
-
----
 
 ### Feature 5: Task Viewing & Filtering
 **Branch**: TBD

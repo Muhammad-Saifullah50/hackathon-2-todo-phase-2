@@ -17,8 +17,8 @@ async def get_me(current_user: User = Depends(get_current_user)):
             email=current_user.email,
             name=current_user.name,
             image=current_user.image,
-            emailVerified=current_user.emailVerified,
-            createdAt=current_user.createdAt,
-            updatedAt=current_user.updatedAt,
+            email_verified=current_user.email_verified,
+            created_at=current_user.created_at,
+            updated_at=current_user.updated_at,
         )
     )

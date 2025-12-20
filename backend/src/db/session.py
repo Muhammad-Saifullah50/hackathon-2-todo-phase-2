@@ -75,14 +75,22 @@ class DatabaseSessionManager:
             await session.close()
 
 
-session_manager = DatabaseSessionManager(
-    settings.DATABASE_URL,
-    engine_kwargs={
+def _get_engine_kwargs() -> dict:
+    """Get engine kwargs based on database URL."""
+    # SQLite doesn't support connection pooling
+    if settings.DATABASE_URL.startswith("sqlite"):
+        return {"echo": settings.LOG_LEVEL == "DEBUG"}
+    return {
         "pool_size": 5,
         "max_overflow": 10,
         "pool_recycle": 3600,
         "echo": settings.LOG_LEVEL == "DEBUG",
-    },
+    }
+
+
+session_manager = DatabaseSessionManager(
+    settings.DATABASE_URL,
+    engine_kwargs=_get_engine_kwargs(),
 )
 
 

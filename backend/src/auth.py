@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel
-from sqlmodel import Session, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
 from src.db.session import get_db
@@ -29,7 +29,7 @@ class TokenData(BaseModel):
 
 async def get_current_user(
     token: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    session: Session = Depends(get_db),
+    session: AsyncSession = Depends(get_db),
 ) -> User:
     """
     Dependency to verify the JWT token and return the current user.

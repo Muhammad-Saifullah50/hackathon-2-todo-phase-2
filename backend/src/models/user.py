@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -26,9 +26,9 @@ class User(UserBase, table=True):
 
     Attributes:
         id: Unique identifier for the user.
-        emailVerified: Whether the email has been verified.
-        createdAt: Timestamp when account was created.
-        updatedAt: Timestamp when account was last updated.
+        email_verified: Whether the email has been verified.
+        created_at: Timestamp when account was created.
+        updated_at: Timestamp when account was last updated.
         tasks: Relationship to tasks owned by this user.
     """
 
@@ -36,9 +36,13 @@ class User(UserBase, table=True):
     __table_args__ = {"extend_existing": True}
 
     id: str = Field(primary_key=True, description="Unique identifier for the user")
-    emailVerified: bool = Field(default=False, description="Whether the email is verified")
-    createdAt: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
-    updatedAt: datetime = Field(default_factory=datetime.utcnow, description="Update timestamp")
+    email_verified: bool = Field(default=False, description="Whether the email is verified")
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp"
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), description="Update timestamp"
+    )
 
     # Relationships
     tasks: list["Task"] = Relationship(back_populates="user", cascade_delete=True)
@@ -51,6 +55,6 @@ class UserResponse(UserBase):
     """
 
     id: str
-    emailVerified: bool
-    createdAt: datetime
-    updatedAt: datetime
+    email_verified: bool
+    created_at: datetime
+    updated_at: datetime

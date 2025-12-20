@@ -1,8 +1,10 @@
+import re
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
+from pydantic import field_validator
 from sqlmodel import Field, Relationship, SQLModel
 
 from .base import TimestampMixin
@@ -34,7 +36,6 @@ class TaskBase(SQLModel):
         description: Detailed information about the task (optional).
         status: Current completion status (default: pending).
         priority: Urgency level of the task (default: medium).
-        due_date: Target date for task completion (optional).
     """
 
     title: str = Field(index=True, description="Title or summary of the task")
@@ -45,7 +46,6 @@ class TaskBase(SQLModel):
     priority: TaskPriority = Field(
         default=TaskPriority.MEDIUM, index=True, description="Priority level of the task"
     )
-    due_date: datetime | None = Field(default=None, description="Target completion date")
 
 
 class Task(TaskBase, TimestampMixin, table=True):
@@ -56,6 +56,7 @@ class Task(TaskBase, TimestampMixin, table=True):
         user_id: Foreign key to the User who owns this task.
         created_at: Timestamp when task was created (from TimestampMixin).
         updated_at: Timestamp when task was last modified (from TimestampMixin).
+        completed_at: Timestamp when task was marked as completed (optional).
         user: Relationship to the parent User object.
     """
 
@@ -67,6 +68,9 @@ class Task(TaskBase, TimestampMixin, table=True):
     user_id: str = Field(
         foreign_key="user.id", index=True, description="ID of the user who owns this task"
     )
+    completed_at: datetime | None = Field(
+        default=None, description="Timestamp when task was completed"
+    )
 
     # Relationships
     user: "User" = Relationship(back_populates="tasks")
@@ -75,10 +79,77 @@ class Task(TaskBase, TimestampMixin, table=True):
 class TaskCreate(TaskBase):
     """Schema for creating a new task.
 
-    Inherits all fields from TaskBase.
+    Inherits all fields from TaskBase with custom validation rules.
+
+    Validation Rules:
+        - Title: 1-100 characters AND 1-50 words (whitespace-trimmed, not empty)
+        - Description: 0-500 characters (optional, whitespace-trimmed, empty→null)
+        - Priority: LOW, MEDIUM, or HIGH (optional, defaults to MEDIUM)
+        - Status: NOT accepted (always PENDING on creation)
     """
 
-    pass
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, v: str) -> str:
+        """Validate title field with character and word count limits.
+
+        Args:
+            v: The title string to validate.
+
+        Returns:
+            Trimmed and validated title string.
+
+        Raises:
+            ValueError: If title is empty, exceeds 100 characters, or exceeds 50 words.
+        """
+        # Trim whitespace
+        v = v.strip()
+
+        # Check not empty
+        if not v:
+            raise ValueError("Title cannot be empty")
+
+        # Check word count FIRST (50 words max, split by whitespace)
+        # This is checked before character limit to match the spec requirement
+        words = re.split(r"\s+", v)
+        if len(words) > 50:
+            raise ValueError("Title must be 50 words or less")
+
+        # Check character limit (100 characters)
+        if len(v) > 100:
+            raise ValueError("Title must be 100 characters or less")
+
+        return v
+
+    @field_validator("description")
+    @classmethod
+    def validate_description(cls, v: str | None) -> str | None:
+        """Validate description field with character limit.
+
+        Args:
+            v: The description string to validate (optional).
+
+        Returns:
+            Trimmed description string or None if empty.
+
+        Raises:
+            ValueError: If description exceeds 500 characters.
+        """
+        if v is None:
+            return None
+
+        # Trim whitespace
+        v = v.strip()
+
+        # Convert empty string to None
+        if not v:
+            return None
+
+        # Check character limit (500 characters)
+        if len(v) > 500:
+            raise ValueError("Description must be 500 characters or less")
+
+        return v
 
 
 class TaskUpdate(SQLModel):
@@ -91,7 +162,6 @@ class TaskUpdate(SQLModel):
     description: str | None = None
     status: TaskStatus | None = None
     priority: TaskPriority | None = None
-    due_date: datetime | None = None
 
 
 class TaskResponse(TaskBase):
@@ -104,3 +174,4 @@ class TaskResponse(TaskBase):
     user_id: str
     created_at: datetime
     updated_at: datetime
+    completed_at: datetime | None
