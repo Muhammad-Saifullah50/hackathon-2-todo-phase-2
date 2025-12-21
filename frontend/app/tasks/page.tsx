@@ -1,9 +1,11 @@
 /**
- * Tasks Page - Main page for task management.
+ * Tasks Page - Main page for task management (SERVER COMPONENT).
  * Displays task list and provides task creation functionality.
+ * Server Component by default - only imports Client Components.
  */
 
 import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
+import { TaskList } from "@/components/tasks/TaskList";
 
 export default function TasksPage() {
   return (
@@ -18,15 +20,8 @@ export default function TasksPage() {
         <CreateTaskDialog />
       </div>
 
-      {/* Task list will be implemented in Feature 5 */}
-      <div className="rounded-lg border border-dashed p-12 text-center">
-        <p className="text-muted-foreground">
-          Task list coming soon in Feature 5: View Tasks
-        </p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Create a task using the &quot;Add Task&quot; button above to get started
-        </p>
-      </div>
+      {/* Task List with filters, sorting, and pagination */}
+      <TaskList />
     </div>
   );
 }

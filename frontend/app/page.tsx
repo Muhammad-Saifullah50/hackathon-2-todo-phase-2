@@ -1,42 +1,112 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import Hero from "@/components/landing/Hero";
+import Features from "@/components/landing/Features";
+import Demo from "@/components/landing/Demo";
+import Testimonials from "@/components/landing/Testimonials";
+import Pricing from "@/components/landing/Pricing";
+import { CTA } from "@/components/landing/CTA";
+import { Footer } from "@/components/landing/Footer";
+import type { Metadata } from "next";
 
-export default function Home() {
+/**
+ * SEO Metadata for landing page
+ */
+export const metadata: Metadata = {
+  title: "TaskApp - Beautiful Task Management for Everyone",
+  description:
+    "Transform your productivity with our beautiful, intuitive task manager. Features include due dates, tags, subtasks, recurring tasks, kanban boards, and more. Free forever plan available.",
+  keywords: [
+    "task management",
+    "todo list",
+    "productivity",
+    "kanban board",
+    "project management",
+    "task organizer",
+    "free task manager",
+  ],
+  authors: [{ name: "TaskApp Team" }],
+  creator: "TaskApp",
+  publisher: "TaskApp",
+  openGraph: {
+    title: "TaskApp - Beautiful Task Management for Everyone",
+    description:
+      "Transform your productivity with our beautiful, intuitive task manager. Free forever plan available.",
+    url: "https://taskapp.com",
+    siteName: "TaskApp",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "TaskApp - Task Management Dashboard",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TaskApp - Beautiful Task Management for Everyone",
+    description:
+      "Transform your productivity with our beautiful, intuitive task manager. Free forever plan available.",
+    images: ["/og-image.png"],
+    creator: "@taskapp",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "google-site-verification-code",
+    // yandex: "yandex-verification-code",
+    // other: "other-verification-code",
+  },
+};
+
+/**
+ * Landing Page - Main entry point for new visitors
+ *
+ * Structure:
+ * 1. Hero - Animated hero section with headline and CTA
+ * 2. Features - 6+ feature cards with icons and descriptions
+ * 3. Demo - Interactive product demo with tabbed navigation
+ * 4. Testimonials - Rotating user testimonials
+ * 5. Pricing - Free/Premium tier comparison
+ * 6. CTA - Final call-to-action
+ * 7. Footer - Navigation links and social icons
+ *
+ * All sections use scroll-triggered animations via Framer Motion
+ * Responsive breakpoints: mobile (320px-767px), tablet (768px-1024px), desktop (1920px+)
+ */
+export default function LandingPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-background">
-      <main className="max-w-2xl w-full">
-        <Card className="shadow-lg border-2">
-          <CardHeader className="text-center space-y-4">
-            <CardTitle className="text-4xl font-extrabold tracking-tight lg:text-5xl text-primary">
-              Todo Application
-            </CardTitle>
-            <CardDescription className="text-xl text-muted-foreground italic">
-              Phase 2: Full-Stack Implementation
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center space-y-8 pt-6">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-semibold">Hello World!</h2>
-              <p className="text-lg leading-7 text-muted-foreground">
-                Welcome to the modernized version of our Todo application. Built with{' '}
-                <strong>Next.js 15</strong>, <strong>React 19</strong>, and a{' '}
-                <strong>FastAPI</strong> backend.
-              </p>
-            </div>
+    <main className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <Hero />
 
-            <div className="flex gap-4">
-              <Button size="lg">Get Started</Button>
-              <Button variant="outline" size="lg">
-                Learn More
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Features Section */}
+      <Features />
 
-        <footer className="mt-12 text-center text-sm text-muted-foreground">
-          <p>Hackathon 2 - Project Setup & Architecture</p>
-        </footer>
-      </main>
-    </div>
+      {/* Interactive Demo Section */}
+      <Demo />
+
+      {/* Testimonials Section */}
+      <Testimonials />
+
+      {/* Pricing Section */}
+      <Pricing />
+
+      {/* Final CTA Section */}
+      <CTA />
+
+      {/* Footer */}
+      <Footer />
+    </main>
   );
 }

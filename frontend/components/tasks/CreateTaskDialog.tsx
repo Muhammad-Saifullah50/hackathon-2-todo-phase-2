@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { format } from "date-fns";
 
 import {
   Dialog,
@@ -25,9 +26,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useCreateTask } from "@/hooks/useTasks";
 import { createTaskSchema, type CreateTaskFormData } from "@/lib/schemas/task";
+import { DueDatePicker } from "./DueDatePicker";
 
 export function CreateTaskDialog() {
   const [open, setOpen] = useState(false);
+  const [dueDate, setDueDate] = useState<Date | null>(null);
   const { toast } = useToast();
   const { mutate: createTask, isPending } = useCreateTask();
 
@@ -43,15 +46,16 @@ export function CreateTaskDialog() {
     mode: "onChange", // Real-time validation
     defaultValues: {
       title: "",
-      description: null,
+      description: "",
       priority: "medium",
+      due_date: null,
     },
   });
 
   // Watch form values to detect changes
   const title = watch("title");
   const description = watch("description");
-  const hasChanges = Boolean(title?.trim() || description?.trim());
+  const hasChanges = Boolean(title?.trim() || description?.trim() || dueDate);
 
   // Keyboard shortcut: Ctrl/Cmd + N to open modal
   useEffect(() => {
@@ -72,6 +76,7 @@ export function CreateTaskDialog() {
         return;
       }
       reset();
+      setDueDate(null);
     }
     setOpen(newOpen);
   };
@@ -82,6 +87,7 @@ export function CreateTaskDialog() {
         title: data.title,
         description: data.description,
         priority: data.priority,
+        due_date: data.due_date,
       },
       {
         onSuccess: () => {
@@ -91,6 +97,7 @@ export function CreateTaskDialog() {
           });
           setOpen(false);
           reset();
+          setDueDate(null);
         },
         onError: (error: any) => {
           toast({
@@ -211,6 +218,18 @@ export function CreateTaskDialog() {
                   <SelectItem value="high">High</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Due Date field */}
+            <div>
+              <Label htmlFor="due_date">Due Date (optional)</Label>
+              <DueDatePicker
+                value={dueDate}
+                onChange={(date) => {
+                  setDueDate(date);
+                  setValue("due_date", date ? format(date, "yyyy-MM-dd") : null);
+                }}
+              />
             </div>
 
             {/* Form actions */}

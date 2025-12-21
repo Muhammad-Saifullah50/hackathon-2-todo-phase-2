@@ -36,6 +36,9 @@ class TaskBase(SQLModel):
         description: Detailed information about the task (optional).
         status: Current completion status (default: pending).
         priority: Urgency level of the task (default: medium).
+        due_date: Optional due date for task completion (with timezone).
+        notes: Optional detailed notes in markdown format.
+        manual_order: Optional user-defined sort order.
     """
 
     title: str = Field(index=True, description="Title or summary of the task")
@@ -45,6 +48,19 @@ class TaskBase(SQLModel):
     )
     priority: TaskPriority = Field(
         default=TaskPriority.MEDIUM, index=True, description="Priority level of the task"
+    )
+    due_date: datetime | None = Field(
+        default=None, description="Optional due date for task completion (UTC)"
+    )
+    notes: str | None = Field(default=None, description="Optional detailed notes (markdown)")
+    manual_order: int | None = Field(default=None, description="User-defined sort order")
+    template_id: UUID | None = Field(
+        default=None, foreign_key="task_templates.id", description="Template used to create this task"
+    )
+    recurrence_pattern_id: UUID | None = Field(
+        default=None,
+        foreign_key="recurrence_patterns.id",
+        description="Recurrence configuration for this task",
     )
 
 
@@ -57,6 +73,7 @@ class Task(TaskBase, TimestampMixin, table=True):
         created_at: Timestamp when task was created (from TimestampMixin).
         updated_at: Timestamp when task was last modified (from TimestampMixin).
         completed_at: Timestamp when task was marked as completed (optional).
+        deleted_at: Timestamp when task was soft-deleted (optional, null for active tasks).
         user: Relationship to the parent User object.
     """
 
@@ -70,6 +87,9 @@ class Task(TaskBase, TimestampMixin, table=True):
     )
     completed_at: datetime | None = Field(
         default=None, description="Timestamp when task was completed"
+    )
+    deleted_at: datetime | None = Field(
+        default=None, description="Timestamp when task was soft-deleted (null for active tasks)"
     )
 
     # Relationships
@@ -175,3 +195,4 @@ class TaskResponse(TaskBase):
     created_at: datetime
     updated_at: datetime
     completed_at: datetime | None
+    deleted_at: datetime | None
