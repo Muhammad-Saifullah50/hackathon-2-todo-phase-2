@@ -1,11 +1,14 @@
 """Task service for business logic operations."""
 
 from datetime import datetime, timezone
+from uuid import UUID
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
-from src.models.task import Task, TaskCreate, TaskPriority, TaskStatus
+from src.models.task import Task, TaskCreate, TaskPriority, TaskResponse, TaskStatus
+from src.models.task_tag import TaskTag
 from src.schemas.task_schemas import PaginationInfo, TaskListResponse, TaskMetadata
 
 
@@ -73,6 +76,7 @@ class TaskService:
         due_date_from: datetime | None = None,
         due_date_to: datetime | None = None,
         has_due_date: bool | None = None,
+        tag_ids: list[str] | None = None,
     ) -> TaskListResponse:
         """Get paginated list of tasks with filtering and sorting.
 
@@ -88,6 +92,7 @@ class TaskService:
             due_date_from: Filter tasks due after this date (optional).
             due_date_to: Filter tasks due before this date (optional).
             has_due_date: Filter tasks with/without due dates (optional).
+            tag_ids: List of tag IDs to filter by (optional). Tasks with ANY of the tags are returned.
 
         Returns:
             TaskListResponse with tasks, metadata, and pagination info.
@@ -136,6 +141,18 @@ class TaskService:
             else:
                 filters.append(Task.due_date.is_(None))
 
+        # Add tag filter if provided (tasks with ANY of the specified tags)
+        if tag_ids is not None and len(tag_ids) > 0:
+            # Convert string IDs to UUID
+            tag_uuids = [UUID(tag_id) for tag_id in tag_ids]
+            # Subquery to find task IDs that have any of the specified tags
+            tag_subquery = (
+                select(TaskTag.task_id)
+                .where(TaskTag.tag_id.in_(tag_uuids))
+                .distinct()
+            )
+            filters.append(Task.id.in_(tag_subquery))
+
         # Build count query for pagination
         count_query = select(func.count()).select_from(Task).where(and_(*filters))
         count_result = await self.session.execute(count_query)
@@ -148,6 +165,11 @@ class TaskService:
 
         # Build main query with sorting and pagination
         query = select(Task).where(and_(*filters))
+
+        # Eager load task_tags with associated tag for each task
+        query = query.options(
+            selectinload(Task.task_tags).selectinload(TaskTag.tag)
+        )
 
         # Apply sorting
         sort_column = getattr(Task, sort_by, Task.created_at)
@@ -164,6 +186,9 @@ class TaskService:
         result = await self.session.execute(query)
         tasks = result.scalars().all()
 
+        # Convert tasks to TaskResponse with tags
+        task_responses = [TaskResponse.from_task(task) for task in tasks]
+
         # Get metadata counts
         metadata = await self._get_task_metadata(user_id)
 
@@ -178,7 +203,7 @@ class TaskService:
         )
 
         return TaskListResponse(
-            tasks=tasks,  # type: ignore
+            tasks=task_responses,
             metadata=metadata,
             pagination=pagination,
         )
@@ -886,3 +911,455 @@ class TaskService:
             due_this_week_count=due_this_week_count,
             no_due_date_count=no_due_date_count,
         )
+
+    # ============================================================================
+    # Search and Quick Filter Methods
+    # ============================================================================
+
+    async def search_tasks(
+        self,
+        user_id: str,
+        query: str | None = None,
+        status: TaskStatus | None = None,
+        priority: TaskPriority | None = None,
+        tag_ids: list[str] | None = None,
+        due_date_from: datetime | None = None,
+        due_date_to: datetime | None = None,
+        has_due_date: bool | None = None,
+        has_notes: bool | None = None,
+        page: int = 1,
+        limit: int = 20,
+    ):
+        """Search tasks with combined filters using AND logic.
+
+        Searches across title, description, and notes fields with ILIKE queries.
+
+        Args:
+            user_id: ID of the authenticated user.
+            query: Search query string (searches title, description, notes).
+            status: Filter by task status.
+            priority: Filter by task priority.
+            tag_ids: List of tag IDs to filter by (tasks with ANY of the tags).
+            due_date_from: Filter tasks due after this date.
+            due_date_to: Filter tasks due before this date.
+            has_due_date: Filter tasks with/without due dates.
+            has_notes: Filter tasks with/without notes.
+            page: Page number (1-indexed).
+            limit: Items per page (max 100).
+
+        Returns:
+            SearchResponse with matching tasks, query, and pagination info.
+        """
+        from src.schemas.search_schemas import SearchResponse
+
+        # Validate pagination
+        if page < 1:
+            raise ValueError("Page must be >= 1")
+        if limit < 1 or limit > 100:
+            raise ValueError("Limit must be between 1 and 100")
+
+        # Build base filters
+        filters = [
+            Task.user_id == user_id,
+            Task.deleted_at.is_(None),
+        ]
+
+        # Add text search filter (searches title, description, notes with OR)
+        if query and query.strip():
+            search_term = f"%{query.strip()}%"
+            from sqlalchemy import or_
+            filters.append(
+                or_(
+                    Task.title.ilike(search_term),
+                    Task.description.ilike(search_term),
+                    Task.notes.ilike(search_term),
+                )
+            )
+
+        # Add status filter
+        if status is not None:
+            filters.append(Task.status == status)
+
+        # Add priority filter
+        if priority is not None:
+            filters.append(Task.priority == priority)
+
+        # Add due date range filters
+        if due_date_from is not None:
+            filters.append(Task.due_date >= due_date_from)
+
+        if due_date_to is not None:
+            filters.append(Task.due_date <= due_date_to)
+
+        # Add has_due_date filter
+        if has_due_date is not None:
+            if has_due_date:
+                filters.append(Task.due_date.isnot(None))
+            else:
+                filters.append(Task.due_date.is_(None))
+
+        # Add has_notes filter
+        if has_notes is not None:
+            if has_notes:
+                filters.append(Task.notes.isnot(None))
+                filters.append(Task.notes != "")
+            else:
+                from sqlalchemy import or_
+                filters.append(
+                    or_(Task.notes.is_(None), Task.notes == "")
+                )
+
+        # Add tag filter (tasks with ANY of the specified tags)
+        if tag_ids is not None and len(tag_ids) > 0:
+            tag_uuids = [UUID(tag_id) for tag_id in tag_ids]
+            tag_subquery = (
+                select(TaskTag.task_id)
+                .where(TaskTag.tag_id.in_(tag_uuids))
+                .distinct()
+            )
+            filters.append(Task.id.in_(tag_subquery))
+
+        # Build count query
+        count_query = select(func.count()).select_from(Task).where(and_(*filters))
+        count_result = await self.session.execute(count_query)
+        total_results = count_result.scalar_one()
+
+        # Calculate pagination
+        total_pages = (total_results + limit - 1) // limit
+        has_next = page < total_pages
+        has_prev = page > 1
+
+        # Build main query with sorting and pagination
+        main_query = select(Task).where(and_(*filters))
+
+        # Eager load tags
+        main_query = main_query.options(
+            selectinload(Task.task_tags).selectinload(TaskTag.tag)
+        )
+
+        # Sort by relevance (if search query) or by created_at
+        main_query = main_query.order_by(Task.created_at.desc())
+
+        # Apply pagination
+        offset = (page - 1) * limit
+        main_query = main_query.offset(offset).limit(limit)
+
+        # Execute query
+        result = await self.session.execute(main_query)
+        tasks = result.scalars().all()
+
+        # Convert to response format
+        task_responses = [TaskResponse.from_task(task) for task in tasks]
+
+        # Get metadata
+        metadata = await self._get_task_metadata(user_id)
+
+        return SearchResponse(
+            tasks=task_responses,
+            query=query,
+            total_results=total_results,
+            metadata=metadata,
+            pagination=PaginationInfo(
+                page=page,
+                limit=limit,
+                total_items=total_results,
+                total_pages=total_pages,
+                has_next=has_next,
+                has_prev=has_prev,
+            ),
+        )
+
+    async def get_autocomplete_suggestions(
+        self,
+        user_id: str,
+        query: str,
+        limit: int = 5,
+    ):
+        """Get autocomplete suggestions for task search.
+
+        Returns task titles that match the query prefix.
+
+        Args:
+            user_id: ID of the authenticated user.
+            query: Search query prefix.
+            limit: Maximum number of suggestions (default 5, max 10).
+
+        Returns:
+            List of AutocompleteSuggestion objects.
+        """
+        from src.schemas.search_schemas import AutocompleteSuggestion
+
+        if not query or not query.strip():
+            return []
+
+        search_term = f"%{query.strip()}%"
+
+        # Query for matching task titles
+        search_query = (
+            select(Task)
+            .where(
+                and_(
+                    Task.user_id == user_id,
+                    Task.deleted_at.is_(None),
+                    Task.title.ilike(search_term),
+                )
+            )
+            .order_by(Task.updated_at.desc())
+            .limit(min(limit, 10))
+        )
+
+        result = await self.session.execute(search_query)
+        tasks = result.scalars().all()
+
+        return [
+            AutocompleteSuggestion(
+                id=str(task.id),
+                title=task.title,
+                status=task.status.value if hasattr(task.status, 'value') else str(task.status),
+            )
+            for task in tasks
+        ]
+
+    async def get_quick_filter_counts(self, user_id: str) -> dict:
+        """Get counts for quick filter options.
+
+        Returns counts for: Today, This Week, High Priority, Overdue.
+
+        Args:
+            user_id: ID of the authenticated user.
+
+        Returns:
+            Dictionary with filter counts.
+        """
+        from datetime import timedelta
+
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+        week_end = today_start + timedelta(days=7)
+
+        # Base conditions: active tasks only
+        base_conditions = and_(Task.user_id == user_id, Task.deleted_at.is_(None))
+
+        # Today count (due date is today)
+        today_query = select(func.count()).where(
+            and_(
+                base_conditions,
+                Task.due_date >= today_start,
+                Task.due_date <= today_end,
+            )
+        )
+        today_result = await self.session.execute(today_query)
+        today_count = today_result.scalar_one()
+
+        # This week count (due date within 7 days)
+        week_query = select(func.count()).where(
+            and_(
+                base_conditions,
+                Task.due_date >= today_start,
+                Task.due_date < week_end,
+            )
+        )
+        week_result = await self.session.execute(week_query)
+        week_count = week_result.scalar_one()
+
+        # High priority count
+        high_priority_query = select(func.count()).where(
+            and_(
+                base_conditions,
+                Task.priority == TaskPriority.HIGH,
+            )
+        )
+        high_priority_result = await self.session.execute(high_priority_query)
+        high_priority_count = high_priority_result.scalar_one()
+
+        # Overdue count (due date before today)
+        overdue_query = select(func.count()).where(
+            and_(
+                base_conditions,
+                Task.due_date.isnot(None),
+                Task.due_date < today_start,
+                Task.status != TaskStatus.COMPLETED,
+            )
+        )
+        overdue_result = await self.session.execute(overdue_query)
+        overdue_count = overdue_result.scalar_one()
+
+        return {
+            "today": today_count,
+            "this_week": week_count,
+            "high_priority": high_priority_count,
+            "overdue": overdue_count,
+        }
+
+    # ============================================================================
+    # Analytics Methods
+    # ============================================================================
+
+    async def get_analytics_stats(self, user_id: str):
+        """Get dashboard analytics stats.
+
+        Returns counts for pending, completed today, overdue, and total tasks.
+
+        Args:
+            user_id: ID of the authenticated user.
+
+        Returns:
+            AnalyticsStatsResponse with count statistics.
+        """
+        from datetime import timedelta
+        from src.schemas.task_schemas import AnalyticsStatsResponse
+
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+        # Base conditions: active tasks only
+        base_conditions = and_(Task.user_id == user_id, Task.deleted_at.is_(None))
+
+        # Pending count
+        pending_query = select(func.count()).where(
+            and_(base_conditions, Task.status == TaskStatus.PENDING)
+        )
+        pending_result = await self.session.execute(pending_query)
+        pending_count = pending_result.scalar_one()
+
+        # Completed today count
+        completed_today_query = select(func.count()).where(
+            and_(
+                base_conditions,
+                Task.status == TaskStatus.COMPLETED,
+                Task.completed_at >= today_start,
+                Task.completed_at <= today_end,
+            )
+        )
+        completed_today_result = await self.session.execute(completed_today_query)
+        completed_today_count = completed_today_result.scalar_one()
+
+        # Overdue count (due before today, not completed)
+        overdue_query = select(func.count()).where(
+            and_(
+                base_conditions,
+                Task.due_date.isnot(None),
+                Task.due_date < today_start,
+                Task.status != TaskStatus.COMPLETED,
+            )
+        )
+        overdue_result = await self.session.execute(overdue_query)
+        overdue_count = overdue_result.scalar_one()
+
+        # Total active tasks count
+        total_query = select(func.count()).where(base_conditions)
+        total_result = await self.session.execute(total_query)
+        total_count = total_result.scalar_one()
+
+        return AnalyticsStatsResponse(
+            pending_count=pending_count,
+            completed_today_count=completed_today_count,
+            overdue_count=overdue_count,
+            total_count=total_count,
+        )
+
+    async def get_completion_trend(self, user_id: str, days: int = 7):
+        """Get completion trend over the specified number of days.
+
+        Returns daily completed and created task counts.
+
+        Args:
+            user_id: ID of the authenticated user.
+            days: Number of days to include (default 7, max 30).
+
+        Returns:
+            CompletionTrendResponse with daily data points.
+        """
+        from datetime import timedelta
+        from src.schemas.task_schemas import CompletionTrendResponse, CompletionTrendDataPoint
+
+        # Validate days parameter
+        days = max(1, min(days, 30))
+
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        data_points = []
+
+        # Generate data for each day
+        for day_offset in range(days - 1, -1, -1):
+            day_start = today_start - timedelta(days=day_offset)
+            day_end = day_start + timedelta(days=1)
+
+            # Base conditions: active tasks only
+            base_conditions = and_(Task.user_id == user_id, Task.deleted_at.is_(None))
+
+            # Completed on this day
+            completed_query = select(func.count()).where(
+                and_(
+                    base_conditions,
+                    Task.completed_at >= day_start,
+                    Task.completed_at < day_end,
+                )
+            )
+            completed_result = await self.session.execute(completed_query)
+            completed_count = completed_result.scalar_one()
+
+            # Created on this day
+            created_query = select(func.count()).where(
+                and_(
+                    base_conditions,
+                    Task.created_at >= day_start,
+                    Task.created_at < day_end,
+                )
+            )
+            created_result = await self.session.execute(created_query)
+            created_count = created_result.scalar_one()
+
+            data_points.append(
+                CompletionTrendDataPoint(
+                    date=day_start.strftime("%Y-%m-%d"),
+                    completed=completed_count,
+                    created=created_count,
+                )
+            )
+
+        return CompletionTrendResponse(data=data_points, days=days)
+
+    async def get_priority_breakdown(self, user_id: str):
+        """Get task breakdown by priority.
+
+        Returns count and percentage for each priority level.
+
+        Args:
+            user_id: ID of the authenticated user.
+
+        Returns:
+            PriorityBreakdownResponse with priority distribution.
+        """
+        from src.schemas.task_schemas import PriorityBreakdownResponse, PriorityBreakdownItem
+
+        # Base conditions: active tasks only
+        base_conditions = and_(Task.user_id == user_id, Task.deleted_at.is_(None))
+
+        # Count by priority
+        priority_counts = {}
+        for priority in [TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.HIGH]:
+            query = select(func.count()).where(
+                and_(base_conditions, Task.priority == priority)
+            )
+            result = await self.session.execute(query)
+            priority_counts[priority.value] = result.scalar_one()
+
+        # Calculate total and percentages
+        total = sum(priority_counts.values())
+
+        data = []
+        for priority_value, count in priority_counts.items():
+            percentage = (count / total * 100) if total > 0 else 0
+            data.append(
+                PriorityBreakdownItem(
+                    priority=priority_value,
+                    count=count,
+                    percentage=round(percentage, 1),
+                )
+            )
+
+        return PriorityBreakdownResponse(data=data, total=total)

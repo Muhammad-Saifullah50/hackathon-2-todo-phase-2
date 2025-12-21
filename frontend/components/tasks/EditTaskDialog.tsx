@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * EditTaskDialog Component - Modal for editing task title, description, and due date.
+ * EditTaskDialog Component - Modal for editing task title, description, due date, and tags.
  * Client Component because it needs form state, validation, and submit handlers.
  */
 
@@ -12,6 +12,7 @@ import * as z from "zod";
 import { format, parseISO } from "date-fns";
 import { Task } from "@/lib/types/task";
 import { useUpdateTask } from "@/hooks/useTasks";
+import { useAssignTags } from "@/hooks/useTags";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { DueDatePicker } from "./DueDatePicker";
+import { TagPicker } from "./TagPicker";
 
 // Form data type
 interface EditTaskFormData {
@@ -68,9 +70,17 @@ export function EditTaskDialog({
   open,
   onOpenChange,
 }: EditTaskDialogProps) {
-  const { mutate: updateTask, isPending } = useUpdateTask();
+  const { mutate: updateTask, isPending: isUpdating } = useUpdateTask();
+  const { mutateAsync: assignTags, isPending: isAssigningTags } = useAssignTags();
+  const isPending = isUpdating || isAssigningTags;
   const [dueDate, setDueDate] = useState<Date | null>(
     task.due_date ? parseISO(task.due_date) : null
+  );
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
+    task.tags?.map((tag) => tag.id) || []
+  );
+  const [initialTagIds, setInitialTagIds] = useState<string[]>(
+    task.tags?.map((tag) => tag.id) || []
   );
 
   const form = useForm<EditTaskFormData>({
@@ -90,46 +100,84 @@ export function EditTaskDialog({
       due_date: task.due_date || null,
     });
     setDueDate(task.due_date ? parseISO(task.due_date) : null);
+    const tagIds = task.tags?.map((tag) => tag.id) || [];
+    setSelectedTagIds(tagIds);
+    setInitialTagIds(tagIds);
   }, [task, form]);
 
-  const onSubmit = (data: EditTaskFormData) => {
+  const onSubmit = async (data: EditTaskFormData) => {
+    // Check if tags changed
+    const tagsChanged =
+      JSON.stringify([...selectedTagIds].sort()) !==
+      JSON.stringify([...initialTagIds].sort());
+
     // Check if anything actually changed
-    const hasChanges =
+    const hasFormChanges =
       data.title !== task.title ||
       (data.description || "") !== (task.description || "") ||
       (data.due_date || null) !== (task.due_date || null);
 
-    if (!hasChanges) {
+    if (!hasFormChanges && !tagsChanged) {
       form.setError("root", {
         message: "No changes detected. Please modify at least one field.",
       });
       return;
     }
 
-    // Submit update
-    updateTask(
-      {
-        taskId: task.id,
-        data: {
-          title: data.title !== task.title ? data.title : undefined,
-          description:
-            data.description !== task.description
-              ? data.description
-              : undefined,
-          due_date:
-            (data.due_date || null) !== (task.due_date || null)
-              ? data.due_date
-              : undefined,
+    // Submit task update if form data changed
+    if (hasFormChanges) {
+      updateTask(
+        {
+          taskId: task.id,
+          data: {
+            title: data.title !== task.title ? data.title : undefined,
+            description:
+              data.description !== task.description
+                ? data.description
+                : undefined,
+            due_date:
+              (data.due_date || null) !== (task.due_date || null)
+                ? data.due_date
+                : undefined,
+          },
         },
-      },
-      {
-        onSuccess: () => {
-          onOpenChange(false);
-          form.reset();
-          setDueDate(null);
-        },
+        {
+          onSuccess: async () => {
+            // Update tags if changed
+            if (tagsChanged) {
+              try {
+                await assignTags({
+                  taskId: task.id,
+                  tagIds: selectedTagIds,
+                });
+              } catch {
+                // Silently handle tag assignment errors
+              }
+            }
+            onOpenChange(false);
+            form.reset();
+            setDueDate(null);
+            setSelectedTagIds([]);
+          },
+        }
+      );
+    } else if (tagsChanged) {
+      // Only tags changed, update them directly
+      try {
+        await assignTags({
+          taskId: task.id,
+          tagIds: selectedTagIds,
+        });
+        onOpenChange(false);
+        form.reset();
+        setDueDate(null);
+        setSelectedTagIds([]);
+      } catch {
+        form.setError("root", {
+          message: "Failed to update tags. Please try again.",
+        });
       }
-    );
+    }
   };
 
   const handleCancel = () => {
@@ -201,6 +249,16 @@ export function EditTaskDialog({
                     date ? format(date, "yyyy-MM-dd") : null
                   );
                 }}
+              />
+            </div>
+
+            {/* Tags Field */}
+            <div className="space-y-2">
+              <Label>Tags (Optional)</Label>
+              <TagPicker
+                selectedTagIds={selectedTagIds}
+                onTagsChange={setSelectedTagIds}
+                maxTags={10}
               />
             </div>
 

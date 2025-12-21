@@ -23,16 +23,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateTask } from "@/hooks/useTasks";
+import { useAssignTags } from "@/hooks/useTags";
 import { createTaskSchema, type CreateTaskFormData } from "@/lib/schemas/task";
 import { DueDatePicker } from "./DueDatePicker";
+import { TagPicker } from "./TagPicker";
 
-export function CreateTaskDialog() {
-  const [open, setOpen] = useState(false);
-  const [dueDate, setDueDate] = useState<Date | null>(null);
+interface CreateTaskDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  defaultValues?: {
+    due_date?: string;
+    priority?: "low" | "medium" | "high";
+  };
+}
+
+export function CreateTaskDialog({ open: controlledOpen, onOpenChange, defaultValues }: CreateTaskDialogProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [dueDate, setDueDate] = useState<Date | null>(
+    defaultValues?.due_date ? new Date(defaultValues.due_date) : null
+  );
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const { toast } = useToast();
   const { mutate: createTask, isPending } = useCreateTask();
+  const { mutateAsync: assignTags } = useAssignTags();
+
+  // Use controlled open state if provided, otherwise use internal state
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
 
   const {
     register,
@@ -47,28 +72,37 @@ export function CreateTaskDialog() {
     defaultValues: {
       title: "",
       description: "",
-      priority: "medium",
-      due_date: null,
+      priority: defaultValues?.priority || "medium",
+      due_date: defaultValues?.due_date ?? null,
     },
   });
+
+  // Update due date and form when defaultValues change
+  useEffect(() => {
+    if (defaultValues?.due_date) {
+      const date = new Date(defaultValues.due_date);
+      setDueDate(date);
+      setValue("due_date", defaultValues.due_date);
+    }
+    if (defaultValues?.priority) {
+      setValue("priority", defaultValues.priority);
+    }
+  }, [defaultValues, setValue]);
 
   // Watch form values to detect changes
   const title = watch("title");
   const description = watch("description");
-  const hasChanges = Boolean(title?.trim() || description?.trim() || dueDate);
+  const hasChanges = Boolean(title?.trim() || description?.trim() || dueDate || selectedTagIds.length > 0);
 
-  // Keyboard shortcut: Ctrl/Cmd + N to open modal
+  // Listen for custom event from keyboard shortcuts provider
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "n") {
-        e.preventDefault();
-        setOpen(true);
-      }
+    const handleOpenDialog = () => {
+      setOpen(true);
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    window.addEventListener("open-create-task-dialog", handleOpenDialog);
+    return () => window.removeEventListener("open-create-task-dialog", handleOpenDialog);
+  }, [setOpen]);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen && hasChanges) {
@@ -77,6 +111,7 @@ export function CreateTaskDialog() {
       }
       reset();
       setDueDate(null);
+      setSelectedTagIds([]);
     }
     setOpen(newOpen);
   };
@@ -90,7 +125,24 @@ export function CreateTaskDialog() {
         due_date: data.due_date,
       },
       {
-        onSuccess: () => {
+        onSuccess: async (response: any) => {
+          // Assign tags if any were selected
+          if (selectedTagIds.length > 0 && response?.data?.id) {
+            try {
+              await assignTags({
+                taskId: response.data.id,
+                tagIds: selectedTagIds,
+              });
+            } catch {
+              // Tags assignment failed but task was created
+              toast({
+                title: "Partial success",
+                description: "Task created but some tags could not be assigned",
+                variant: "default",
+              });
+            }
+          }
+
           toast({
             title: "Success",
             description: "Task created successfully",
@@ -98,6 +150,7 @@ export function CreateTaskDialog() {
           setOpen(false);
           reset();
           setDueDate(null);
+          setSelectedTagIds([]);
         },
         onError: (error: any) => {
           toast({
@@ -118,10 +171,19 @@ export function CreateTaskDialog() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>
-        <Plus className="mr-2 h-4 w-4" />
-        Add Task
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={() => setOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Task
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Create new task (N)</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[500px] max-sm:h-full max-sm:w-full max-sm:max-w-full">
@@ -229,6 +291,16 @@ export function CreateTaskDialog() {
                   setDueDate(date);
                   setValue("due_date", date ? format(date, "yyyy-MM-dd") : null);
                 }}
+              />
+            </div>
+
+            {/* Tags field */}
+            <div>
+              <Label>Tags (optional)</Label>
+              <TagPicker
+                selectedTagIds={selectedTagIds}
+                onTagsChange={setSelectedTagIds}
+                maxTags={10}
               />
             </div>
 

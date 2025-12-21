@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.routes import health, tasks, user
+from src.api.routes import health, search, tags, tasks, user
 from src.config import settings
 
 
@@ -52,6 +52,8 @@ app.add_middleware(
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(user.router, prefix="/api/v1", tags=["users"])
 app.include_router(tasks.router)
+app.include_router(search.router)
+app.include_router(tags.router)
 
 
 if __name__ == "__main__":

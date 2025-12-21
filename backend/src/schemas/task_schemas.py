@@ -192,3 +192,76 @@ class UpdateDueDateRequest(BaseModel):
     due_date: datetime | None = Field(
         default=None, description="New due date (ISO 8601 with timezone) or None to remove"
     )
+
+
+# ============================================================================
+# Analytics Schemas
+# ============================================================================
+
+
+class AnalyticsStatsResponse(BaseModel):
+    """Response schema for dashboard stats.
+
+    Attributes:
+        pending_count: Number of pending tasks.
+        completed_today_count: Number of tasks completed today.
+        overdue_count: Number of overdue tasks.
+        total_count: Total number of active tasks.
+    """
+
+    pending_count: int = Field(ge=0, description="Number of pending tasks")
+    completed_today_count: int = Field(ge=0, description="Number of tasks completed today")
+    overdue_count: int = Field(ge=0, description="Number of overdue tasks")
+    total_count: int = Field(ge=0, description="Total number of active tasks")
+
+
+class CompletionTrendDataPoint(BaseModel):
+    """Single data point for completion trend.
+
+    Attributes:
+        date: Date string (YYYY-MM-DD).
+        completed: Number of tasks completed on this date.
+        created: Number of tasks created on this date.
+    """
+
+    date: str = Field(description="Date string (YYYY-MM-DD)")
+    completed: int = Field(ge=0, description="Number of tasks completed")
+    created: int = Field(ge=0, description="Number of tasks created")
+
+
+class CompletionTrendResponse(BaseModel):
+    """Response schema for completion trend.
+
+    Attributes:
+        data: List of daily completion data points.
+        days: Number of days in the trend.
+    """
+
+    data: list[CompletionTrendDataPoint] = Field(description="Daily completion data")
+    days: int = Field(ge=1, le=30, description="Number of days in trend")
+
+
+class PriorityBreakdownItem(BaseModel):
+    """Single priority breakdown item.
+
+    Attributes:
+        priority: Priority level (low, medium, high).
+        count: Number of tasks with this priority.
+        percentage: Percentage of total tasks.
+    """
+
+    priority: str = Field(description="Priority level")
+    count: int = Field(ge=0, description="Number of tasks")
+    percentage: float = Field(ge=0, le=100, description="Percentage of total")
+
+
+class PriorityBreakdownResponse(BaseModel):
+    """Response schema for priority breakdown.
+
+    Attributes:
+        data: List of priority breakdown items.
+        total: Total number of tasks.
+    """
+
+    data: list[PriorityBreakdownItem] = Field(description="Priority breakdown data")
+    total: int = Field(ge=0, description="Total number of tasks")

@@ -111,33 +111,34 @@
 
 ### Implementation for User Story 3
 
-- [ ] T039 [P] [US3] Create Alembic migration: Create tags table (id, user_id, name, color, timestamps) in backend/alembic/versions/
-- [ ] T040 [P] [US3] Create Alembic migration: Create task_tags join table (task_id, tag_id, created_at) in backend/alembic/versions/
-- [ ] T041 [P] [US3] Run alembic upgrade head to apply tag migrations
-- [ ] T042 [P] [US3] Create backend/src/models/tag.py with Tag model (id, user_id, name VARCHAR(50), color VARCHAR(7), timestamps)
-- [ ] T043 [P] [US3] Create backend/src/models/task_tag.py with TaskTag join model (task_id, tag_id, created_at)
-- [ ] T044 [P] [US3] Create backend/src/schemas/tag_schemas.py with TagCreate, TagUpdate, TagResponse schemas including validation
-- [ ] T045 [US3] Create backend/src/services/tag_service.py with CRUD operations (create_tag, get_tags, update_tag, delete_tag)
-- [ ] T046 [US3] Implement tag assignment logic in backend/src/services/task_service.py (add_tags_to_task, remove_tags_from_task)
-- [ ] T047 [P] [US3] Add GET /api/v1/tags endpoint in backend/src/api/routes/tags.py for listing user's tags
-- [ ] T048 [P] [US3] Add POST /api/v1/tags endpoint in backend/src/api/routes/tags.py for creating new tag
-- [ ] T049 [P] [US3] Add PATCH /api/v1/tags/{tag_id} endpoint in backend/src/api/routes/tags.py for updating tag
-- [ ] T050 [P] [US3] Add DELETE /api/v1/tags/{tag_id} endpoint in backend/src/api/routes/tags.py for deleting tag
-- [ ] T051 [P] [US3] Add POST /api/v1/tasks/{task_id}/tags endpoint in backend/src/api/routes/tasks.py for assigning tags
-- [ ] T052 [P] [US3] Add DELETE /api/v1/tasks/{task_id}/tags endpoint in backend/src/api/routes/tasks.py for removing tags
-- [ ] T053 [P] [US3] Create frontend/hooks/useTags.ts with useQuery for fetching tags, useMutation for CRUD operations
-- [ ] T054 [P] [US3] Create frontend/components/tasks/TagPicker.tsx with existing tag selection and new tag creation with color picker
-- [ ] T055 [P] [US3] Create frontend/components/tasks/TagBadge.tsx displaying tag name with assigned color background
-- [ ] T056 [P] [US3] Create frontend/components/tasks/TagFilters.tsx with filter chips for each tag
-- [ ] T057 [P] [US3] Create frontend/components/tasks/TagManagement.tsx dialog for managing user's tags (edit/delete)
-- [ ] T058 [US3] Add tag picker to CreateTaskDialog.tsx and EditTaskDialog.tsx in frontend/components/tasks/
-- [ ] T059 [US3] Update TaskCard.tsx in frontend/components/tasks/ to display TagBadge components
-- [ ] T060 [US3] Extend useTasks hook in frontend/hooks/useTasks.ts to support tag filtering (tags query parameter)
-- [ ] T061 [US3] Update backend/src/services/task_service.py to load tasks with tags relationship using selectinload
+- [X] T039 [P] [US3] Create Alembic migration: Create tags table (id, user_id, name, color, timestamps) in backend/alembic/versions/
+- [X] T040 [P] [US3] Create Alembic migration: Create task_tags join table (task_id, tag_id, created_at) in backend/alembic/versions/
+- [X] T041 [P] [US3] Run alembic upgrade head to apply tag migrations
+- [X] T042 [P] [US3] Create backend/src/models/tag.py with Tag model (id, user_id, name VARCHAR(50), color VARCHAR(7), timestamps)
+- [X] T043 [P] [US3] Create backend/src/models/task_tag.py with TaskTag join model (task_id, tag_id, created_at)
+- [X] T044 [P] [US3] Create backend/src/schemas/tag_schemas.py with TagCreate, TagUpdate, TagResponse schemas including validation
+- [X] T045 [US3] Create backend/src/services/tag_service.py with CRUD operations (create_tag, get_tags, update_tag, delete_tag)
+- [X] T046 [US3] Implement tag assignment logic in backend/src/services/task_service.py (add_tags_to_task, remove_tags_from_task)
+- [X] T047 [P] [US3] Add GET /api/v1/tags endpoint in backend/src/api/routes/tags.py for listing user's tags
+- [X] T048 [P] [US3] Add POST /api/v1/tags endpoint in backend/src/api/routes/tags.py for creating new tag
+- [X] T049 [P] [US3] Add PATCH /api/v1/tags/{tag_id} endpoint in backend/src/api/routes/tags.py for updating tag
+- [X] T050 [P] [US3] Add DELETE /api/v1/tags/{tag_id} endpoint in backend/src/api/routes/tags.py for deleting tag
+- [X] T051 [P] [US3] Add POST /api/v1/tasks/{task_id}/tags endpoint in backend/src/api/routes/tags.py for assigning tags
+- [X] T052 [P] [US3] Add DELETE /api/v1/tasks/{task_id}/tags endpoint in backend/src/api/routes/tags.py for removing tags
+- [X] T053 [P] [US3] Create frontend/hooks/useTags.ts with useQuery for fetching tags, useMutation for CRUD operations
+- [X] T054 [P] [US3] Create frontend/components/tasks/TagPicker.tsx with existing tag selection and new tag creation with color picker
+- [X] T055 [P] [US3] Create frontend/components/tasks/TagBadge.tsx displaying tag name with assigned color background
+- [X] T056 [P] [US3] Create frontend/components/tasks/TagFilters.tsx with filter chips for each tag
+- [X] T057 [P] [US3] Create frontend/components/tasks/TagManagement.tsx dialog for managing user's tags (edit/delete)
+- [X] T058 [US3] Add tag picker to CreateTaskDialog.tsx and EditTaskDialog.tsx in frontend/components/tasks/
+- [X] T059 [US3] Update TaskCard.tsx in frontend/components/tasks/ to display TagBadge components
+- [X] T060 [US3] Extend useTasks hook in frontend/hooks/useTasks.ts to support tag filtering (tags query parameter)
+- [X] T061 [US3] Update backend/src/services/task_service.py to load tasks with tags relationship using selectinload
 
 **Checkpoint**: At this point, User Story 3 should be fully functional - tags can be created/managed, tasks can be tagged, tag filtering works independently
 
 ---
+
 
 ## Phase 6: User Story 4 - Beautiful Visual Experience with Animations (Priority: P2)
 
@@ -147,17 +148,17 @@
 
 ### Implementation for User Story 4
 
-- [ ] T062 [P] [US4] Define animation variants in frontend/lib/animations.ts: fadeIn, slideIn, scaleIn, confetti, cardHover, cardExit
-- [ ] T063 [P] [US4] Wrap TaskCard.tsx in frontend/components/tasks/ with motion.div and add initial/animate/exit props
-- [ ] T064 [P] [US4] Implement confetti animation component in frontend/components/ui/confetti.tsx using canvas-confetti library
-- [ ] T065 [US4] Add confetti trigger to task toggle mutation onSuccess callback in frontend/hooks/useTasks.ts
-- [ ] T066 [US4] Add hover elevation effect to TaskCard.tsx using Framer Motion whileHover prop
-- [ ] T067 [US4] Implement stagger animation for task list in TaskList.tsx using Framer Motion staggerChildren
-- [ ] T068 [US4] Add exit animation to deleted tasks in TaskList.tsx with AnimatePresence wrapper
-- [ ] T069 [US4] Implement view transition animation between list/grid layouts in frontend/app/tasks/page.tsx
-- [ ] T070 [US4] Add scale + fade animation to dialog/modal components in frontend/components/ui/dialog.tsx
-- [ ] T071 [US4] Add backdrop blur effect to dialog overlays in frontend/components/ui/dialog.tsx
-- [ ] T072 [US4] Respect prefers-reduced-motion media query by conditionally disabling animations in frontend/lib/animations.ts
+- [X] T062 [P] [US4] Define animation variants in frontend/lib/animations.ts: fadeIn, slideIn, scaleIn, confetti, cardHover, cardExit
+- [X] T063 [P] [US4] Wrap TaskCard.tsx in frontend/components/tasks/ with motion.div and add initial/animate/exit props
+- [X] T064 [P] [US4] Implement confetti animation component in frontend/components/ui/confetti.tsx using canvas-confetti library
+- [X] T065 [US4] Add confetti trigger to task toggle mutation onSuccess callback in frontend/hooks/useTasks.ts
+- [X] T066 [US4] Add hover elevation effect to TaskCard.tsx using Framer Motion whileHover prop
+- [X] T067 [US4] Implement stagger animation for task list in TaskList.tsx using Framer Motion staggerChildren
+- [X] T068 [US4] Add exit animation to deleted tasks in TaskList.tsx with AnimatePresence wrapper
+- [X] T069 [US4] Implement view transition animation between list/grid layouts in frontend/app/tasks/page.tsx
+- [X] T070 [US4] Add scale + fade animation to dialog/modal components in frontend/components/ui/dialog.tsx
+- [X] T071 [US4] Add backdrop blur effect to dialog overlays in frontend/components/ui/dialog.tsx
+- [X] T072 [US4] Respect prefers-reduced-motion media query by conditionally disabling animations in frontend/lib/animations.ts
 
 **Checkpoint**: At this point, User Story 4 should be fully functional - all animations play smoothly at 60fps, respecting user motion preferences
 
@@ -171,19 +172,19 @@
 
 ### Implementation for User Story 5
 
-- [ ] T073 [P] [US5] Add GET /api/v1/tasks/search endpoint in backend/src/api/routes/search.py with query parameters (q, status, priority, tags, due_date_from, due_date_to, has_due_date, has_notes)
-- [ ] T074 [P] [US5] Add GET /api/v1/tasks/autocomplete endpoint in backend/src/api/routes/search.py for search suggestions
-- [ ] T075 [P] [US5] Add GET /api/v1/tasks/quick-filters endpoint in backend/src/api/routes/search.py returning filter options with counts
-- [ ] T076 [US5] Implement search logic in backend/src/services/task_service.py with ILIKE queries for title/description/notes
-- [ ] T077 [US5] Implement combined filter logic in backend/src/services/task_service.py with AND conditions for multiple filters
-- [ ] T078 [P] [US5] Create frontend/components/tasks/SearchBar.tsx with debounced input (300ms delay) and clear button
-- [ ] T079 [P] [US5] Create frontend/components/tasks/QuickFilters.tsx with chips for Today/This Week/High Priority/Overdue
-- [ ] T080 [P] [US5] Create frontend/hooks/useSearch.ts with debounced search query and filter state management
-- [ ] T081 [US5] Update TaskList.tsx to highlight search terms in yellow within task cards
-- [ ] T082 [US5] Add search bar and quick filters to frontend/app/tasks/page.tsx above task list
-- [ ] T083 [US5] Implement filter chip active state styling in QuickFilters.tsx (highlighted when active)
-- [ ] T084 [US5] Add filter combination logic in useSearch.ts to build query parameters for useTasks hook
-- [ ] T085 [US5] Display "No results found" empty state in TaskList.tsx when search/filters return no matches
+- [X] T073 [P] [US5] Add GET /api/v1/tasks/search endpoint in backend/src/api/routes/search.py with query parameters (q, status, priority, tags, due_date_from, due_date_to, has_due_date, has_notes)
+- [X] T074 [P] [US5] Add GET /api/v1/tasks/autocomplete endpoint in backend/src/api/routes/search.py for search suggestions
+- [X] T075 [P] [US5] Add GET /api/v1/tasks/quick-filters endpoint in backend/src/api/routes/search.py returning filter options with counts
+- [X] T076 [US5] Implement search logic in backend/src/services/task_service.py with ILIKE queries for title/description/notes
+- [X] T077 [US5] Implement combined filter logic in backend/src/services/task_service.py with AND conditions for multiple filters
+- [X] T078 [P] [US5] Create frontend/components/tasks/SearchBar.tsx with debounced input (300ms delay) and clear button
+- [X] T079 [P] [US5] Create frontend/components/tasks/QuickFilters.tsx with chips for Today/This Week/High Priority/Overdue
+- [X] T080 [P] [US5] Create frontend/hooks/useSearch.ts with debounced search query and filter state management
+- [X] T081 [US5] Update TaskList.tsx to highlight search terms in yellow within task cards
+- [X] T082 [US5] Add search bar and quick filters to frontend/app/tasks/page.tsx above task list
+- [X] T083 [US5] Implement filter chip active state styling in QuickFilters.tsx (highlighted when active)
+- [X] T084 [US5] Add filter combination logic in useSearch.ts to build query parameters for useTasks hook
+- [X] T085 [US5] Display "No results found" empty state in TaskList.tsx when search/filters return no matches
 
 **Checkpoint**: At this point, User Story 5 should be fully functional - search is instant with highlighting, quick filters work, combinations apply AND logic
 
@@ -197,18 +198,18 @@
 
 ### Implementation for User Story 6
 
-- [ ] T086 [P] [US6] Add GET /api/v1/tasks/analytics/stats endpoint in backend/src/api/routes/tasks.py returning pending_count, completed_today_count, overdue_count
-- [ ] T087 [P] [US6] Add GET /api/v1/tasks/analytics/completion-trend endpoint in backend/src/api/routes/tasks.py with days parameter (default 7)
-- [ ] T088 [P] [US6] Add GET /api/v1/tasks/analytics/priority-breakdown endpoint in backend/src/api/routes/tasks.py returning counts by priority
-- [ ] T089 [US6] Implement analytics calculations in backend/src/services/task_service.py with date range queries
-- [ ] T090 [P] [US6] Create frontend/app/tasks/dashboard/page.tsx as dashboard route
-- [ ] T091 [P] [US6] Create frontend/components/dashboard/StatsCards.tsx with three cards (pending, completed today, overdue) clickable to filter
-- [ ] T092 [P] [US6] Create frontend/components/dashboard/CompletionTrendChart.tsx using Recharts LineChart for 7-day completion data
-- [ ] T093 [P] [US6] Create frontend/components/dashboard/PriorityBreakdownChart.tsx using Recharts PieChart for priority distribution
-- [ ] T094 [P] [US6] Create frontend/hooks/useAnalytics.ts with queries for stats, completion trend, priority breakdown
-- [ ] T095 [US6] Add empty state illustration to dashboard when user has no tasks
-- [ ] T096 [US6] Implement click handlers on stat cards to navigate to filtered task list views
-- [ ] T097 [US6] Add loading skeletons to dashboard components while data fetches
+- [X] T086 [P] [US6] Add GET /api/v1/tasks/analytics/stats endpoint in backend/src/api/routes/tasks.py returning pending_count, completed_today_count, overdue_count
+- [X] T087 [P] [US6] Add GET /api/v1/tasks/analytics/completion-trend endpoint in backend/src/api/routes/tasks.py with days parameter (default 7)
+- [X] T088 [P] [US6] Add GET /api/v1/tasks/analytics/priority-breakdown endpoint in backend/src/api/routes/tasks.py returning counts by priority
+- [X] T089 [US6] Implement analytics calculations in backend/src/services/task_service.py with date range queries
+- [X] T090 [P] [US6] Create frontend/app/tasks/dashboard/page.tsx as dashboard route
+- [X] T091 [P] [US6] Create frontend/components/dashboard/StatsCards.tsx with three cards (pending, completed today, overdue) clickable to filter
+- [X] T092 [P] [US6] Create frontend/components/dashboard/CompletionTrendChart.tsx using Recharts LineChart for 7-day completion data
+- [X] T093 [P] [US6] Create frontend/components/dashboard/PriorityBreakdownChart.tsx using Recharts PieChart for priority distribution
+- [X] T094 [P] [US6] Create frontend/hooks/useAnalytics.ts with queries for stats, completion trend, priority breakdown
+- [X] T095 [US6] Add empty state illustration to dashboard when user has no tasks
+- [X] T096 [US6] Implement click handlers on stat cards to navigate to filtered task list views
+- [X] T097 [US6] Add loading skeletons to dashboard components while data fetches
 
 **Checkpoint**: At this point, User Story 6 should be fully functional - dashboard displays analytics, charts render correctly, empty states handle zero data
 
@@ -222,16 +223,16 @@
 
 ### Implementation for User Story 7
 
-- [ ] T098 [P] [US7] Create frontend/app/tasks/kanban/page.tsx as kanban board route
-- [ ] T099 [P] [US7] Create frontend/components/kanban/KanbanBoard.tsx with DndContext from @dnd-kit/core
-- [ ] T100 [P] [US7] Create frontend/components/kanban/KanbanColumn.tsx with useDroppable from @dnd-kit/core showing column header and task count
-- [ ] T101 [P] [US7] Create frontend/components/kanban/DraggableTaskCard.tsx with useDraggable and useSortable from @dnd-kit
-- [ ] T102 [US7] Implement drag handlers in KanbanBoard.tsx to update task status via API on drop
-- [ ] T103 [US7] Add optimistic UI update to kanban drag operation using TanStack Query setQueryData
-- [ ] T104 [US7] Add drop zone highlighting in KanbanColumn.tsx when dragging over column
-- [ ] T105 [US7] Implement "Add Task" button in each column header that opens CreateTaskDialog with appropriate status pre-filled
-- [ ] T106 [US7] Add filter support to kanban view (filtered tasks appear in their respective columns)
-- [ ] T107 [US7] Add drag overlay animation with semi-transparent task card following cursor
+- [X] T098 [P] [US7] Create frontend/app/tasks/kanban/page.tsx as kanban board route
+- [X] T099 [P] [US7] Create frontend/components/kanban/KanbanBoard.tsx with DndContext from @dnd-kit/core
+- [X] T100 [P] [US7] Create frontend/components/kanban/KanbanColumn.tsx with useDroppable from @dnd-kit/core showing column header and task count
+- [X] T101 [P] [US7] Create frontend/components/kanban/DraggableTaskCard.tsx with useDraggable and useSortable from @dnd-kit
+- [X] T102 [US7] Implement drag handlers in KanbanBoard.tsx to update task status via API on drop
+- [X] T103 [US7] Add optimistic UI update to kanban drag operation using TanStack Query setQueryData
+- [X] T104 [US7] Add drop zone highlighting in KanbanColumn.tsx when dragging over column
+- [X] T105 [US7] Implement "Add Task" button in each column header that opens CreateTaskDialog with appropriate status pre-filled
+- [X] T106 [US7] Add filter support to kanban view (filtered tasks appear in their respective columns)
+- [X] T107 [US7] Add drag overlay animation with semi-transparent task card following cursor
 
 **Checkpoint**: At this point, User Story 7 should be fully functional - kanban board displays tasks by status, drag-and-drop updates status, counts update
 
@@ -245,18 +246,18 @@
 
 ### Implementation for User Story 8
 
-- [ ] T108 [P] [US8] Create frontend/app/tasks/calendar/page.tsx as calendar view route
-- [ ] T109 [P] [US8] Create frontend/components/calendar/CalendarView.tsx with custom monthly calendar grid implementation
-- [ ] T110 [P] [US8] Create frontend/components/calendar/CalendarDayCell.tsx displaying date and tasks as colored badges
-- [ ] T111 [P] [US8] Create frontend/components/calendar/CalendarTaskCard.tsx compact task card for calendar display
-- [ ] T112 [P] [US8] Create frontend/components/calendar/DayTasksPanel.tsx sidebar showing all tasks for selected date
-- [ ] T113 [US8] Implement month navigation (previous/next month buttons) in CalendarView.tsx with ±12 month constraint
-- [ ] T114 [US8] Implement drag-to-reschedule using @use-gesture/react in CalendarDayCell.tsx
-- [ ] T115 [US8] Update task due_date via API when dropped on new calendar date
-- [ ] T116 [US8] Add click handler to calendar day to open DayTasksPanel with filtered tasks
-- [ ] T117 [US8] Implement "Create Task" button in DayTasksPanel that pre-fills selected date
-- [ ] T118 [US8] Add color coding to calendar task badges based on priority (red=high, yellow=medium, blue=low)
-- [ ] T119 [US8] Handle overflow when calendar day has more tasks than fit (show "+N more" badge)
+- [X] T108 [P] [US8] Create frontend/app/tasks/calendar/page.tsx as calendar view route
+- [X] T109 [P] [US8] Create frontend/components/calendar/CalendarView.tsx with custom monthly calendar grid implementation
+- [X] T110 [P] [US8] Create frontend/components/calendar/CalendarDayCell.tsx displaying date and tasks as colored badges
+- [X] T111 [P] [US8] Create frontend/components/calendar/CalendarTaskCard.tsx compact task card for calendar display
+- [X] T112 [P] [US8] Create frontend/components/calendar/DayTasksPanel.tsx sidebar showing all tasks for selected date
+- [X] T113 [US8] Implement month navigation (previous/next month buttons) in CalendarView.tsx with ±12 month constraint
+- [X] T114 [US8] Implement drag-to-reschedule using @use-gesture/react in CalendarDayCell.tsx
+- [X] T115 [US8] Update task due_date via API when dropped on new calendar date
+- [X] T116 [US8] Add click handler to calendar day to open DayTasksPanel with filtered tasks
+- [X] T117 [US8] Implement "Create Task" button in DayTasksPanel that pre-fills selected date
+- [X] T118 [US8] Add color coding to calendar task badges based on priority (red=high, yellow=medium, blue=low)
+- [X] T119 [US8] Handle overflow when calendar day has more tasks than fit (show "+N more" badge)
 
 **Checkpoint**: At this point, User Story 8 should be fully functional - calendar displays tasks by due date, drag-to-reschedule works, day panel shows task details
 

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
+    from .tag import Tag
     from .task import Task
 
 
@@ -46,6 +47,7 @@ class User(UserBase, table=True):
 
     # Relationships
     tasks: list["Task"] = Relationship(back_populates="user", cascade_delete=True)
+    tags: list["Tag"] = Relationship(back_populates="user", cascade_delete=True)
 
 
 class UserResponse(UserBase):

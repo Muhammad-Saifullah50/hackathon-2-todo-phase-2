@@ -4,6 +4,7 @@ import './globals.css';
 import Providers from '@/components/providers';
 import Navbar from '@/components/navbar';
 import { Toaster } from '@/components/ui/toaster';
+import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,11 +22,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <div className="min-h-screen flex flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-          </div>
-          <Toaster />
+          <KeyboardShortcutsProvider>
+            <div className="min-h-screen flex flex-col">
+              <Navbar />
+              <main className="flex-1">{children}</main>
+            </div>
+            <Toaster />
+          </KeyboardShortcutsProvider>
         </Providers>
       </body>
     </html>

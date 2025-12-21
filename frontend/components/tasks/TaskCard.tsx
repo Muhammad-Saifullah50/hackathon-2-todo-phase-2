@@ -3,9 +3,11 @@
 /**
  * TaskCard Component - Displays a single task with interactive elements.
  * Client Component because it needs onClick handlers and state for hover effects.
+ * Enhanced with Framer Motion animations for smooth interactions.
  */
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Task } from "@/lib/types/task";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,16 +17,20 @@ import { formatDistanceToNow } from "date-fns";
 import { EditTaskDialog } from "./EditTaskDialog";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 import { DueDateBadge } from "./DueDateBadge";
+import { TagBadgeList } from "./TagBadge";
+import { HighlightedText } from "./SearchBar";
 import { useCelebration } from "./CelebrationAnimation";
 import { useToggleTask, useDeleteTask, useRestoreTask, usePermanentDelete } from "@/hooks/useTasks";
+import { listItem, cardHover, useReducedMotion } from "@/lib/animations";
 
 interface TaskCardProps {
   task: Task;
   variant?: "list" | "grid";
   isTrashView?: boolean;
+  searchQuery?: string;
 }
 
-export function TaskCard({ task, variant: _variant = "list", isTrashView = false }: TaskCardProps) {
+export function TaskCard({ task, variant: _variant = "list", isTrashView = false, searchQuery = "" }: TaskCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPermanentDeleteDialogOpen, setIsPermanentDeleteDialogOpen] = useState(false);
@@ -34,6 +40,7 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
   const { mutate: restoreTask } = useRestoreTask();
   const { mutate: permanentDelete } = usePermanentDelete();
   const { triggerCelebration, CelebrationComponent } = useCelebration();
+  const prefersReducedMotion = useReducedMotion();
   const isCompleted = task.status === "completed";
 
   const StatusIcon = isCompleted ? CheckCircle2 : Circle;
@@ -74,8 +81,17 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
       {/* Celebration Animation */}
       <CelebrationComponent />
 
-      <Card className="hover:shadow-md transition-shadow" role="article" aria-label={`Task: ${task.title}`}>
-        <CardContent className="p-4">
+      <motion.div
+        variants={listItem}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        whileHover={prefersReducedMotion ? undefined : cardHover.hover}
+        whileTap={prefersReducedMotion ? undefined : cardHover.tap}
+        layout={!prefersReducedMotion}
+      >
+        <Card className="hover:shadow-md transition-shadow" role="article" aria-label={`Task: ${task.title}`}>
+          <CardContent className="p-4">
           <div className="flex items-start gap-3">
             {/* Status Checkbox */}
             <button
@@ -97,7 +113,7 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
                       : "text-foreground"
                   }`}
                 >
-                  {task.title}
+                  <HighlightedText text={task.title} query={searchQuery} />
                 </h3>
 
                 <div className="flex items-center gap-1 shrink-0">
@@ -175,8 +191,19 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
                     : "text-muted-foreground"
                 }`}
               >
-                {task.description}
+                <HighlightedText text={task.description} query={searchQuery} />
               </p>
+            )}
+
+            {/* Tags */}
+            {task.tags && task.tags.length > 0 && (
+              <div className="mt-2">
+                <TagBadgeList
+                  tags={task.tags}
+                  maxVisible={3}
+                  size="sm"
+                />
+              </div>
             )}
 
             {/* Timestamps */}
@@ -204,10 +231,11 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+      </motion.div>
 
-    {/* Edit Dialog */}
+      {/* Edit Dialog */}
     {!isTrashView && (
       <EditTaskDialog
         task={task}

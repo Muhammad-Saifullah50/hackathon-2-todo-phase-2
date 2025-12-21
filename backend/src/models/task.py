@@ -10,6 +10,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from .base import TimestampMixin
 
 if TYPE_CHECKING:
+    from .task_tag import TaskTag
     from .user import User
 
 
@@ -94,6 +95,7 @@ class Task(TaskBase, TimestampMixin, table=True):
 
     # Relationships
     user: "User" = Relationship(back_populates="tasks")
+    task_tags: list["TaskTag"] = Relationship(back_populates="task", cascade_delete=True)
 
 
 class TaskCreate(TaskBase):
@@ -184,6 +186,14 @@ class TaskUpdate(SQLModel):
     priority: TaskPriority | None = None
 
 
+class TagInfo(SQLModel):
+    """Minimal tag information for task response."""
+
+    id: UUID
+    name: str
+    color: str
+
+
 class TaskResponse(TaskBase):
     """Schema for task response payloads.
 
@@ -196,3 +206,45 @@ class TaskResponse(TaskBase):
     updated_at: datetime
     completed_at: datetime | None
     deleted_at: datetime | None
+    tags: list[TagInfo] = []
+
+    @classmethod
+    def from_task(cls, task: "Task") -> "TaskResponse":
+        """Create a TaskResponse from a Task model with tags loaded.
+
+        Args:
+            task: The Task model instance with task_tags relationship loaded.
+
+        Returns:
+            TaskResponse with tags populated from task_tags relationship.
+        """
+        tags = []
+        if hasattr(task, "task_tags") and task.task_tags:
+            for task_tag in task.task_tags:
+                if hasattr(task_tag, "tag") and task_tag.tag:
+                    tags.append(
+                        TagInfo(
+                            id=task_tag.tag.id,
+                            name=task_tag.tag.name,
+                            color=task_tag.tag.color,
+                        )
+                    )
+
+        return cls(
+            id=task.id,
+            user_id=task.user_id,
+            title=task.title,
+            description=task.description,
+            status=task.status,
+            priority=task.priority,
+            due_date=task.due_date,
+            notes=task.notes,
+            manual_order=task.manual_order,
+            template_id=task.template_id,
+            recurrence_pattern_id=task.recurrence_pattern_id,
+            created_at=task.created_at,
+            updated_at=task.updated_at,
+            completed_at=task.completed_at,
+            deleted_at=task.deleted_at,
+            tags=tags,
+        )

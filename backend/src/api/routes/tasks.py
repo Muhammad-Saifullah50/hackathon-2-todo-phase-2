@@ -19,6 +19,9 @@ from src.schemas.task_schemas import (
     BulkOperationResponse,
     DueDateStatsResponse,
     UpdateDueDateRequest,
+    AnalyticsStatsResponse,
+    CompletionTrendResponse,
+    PriorityBreakdownResponse,
 )
 from src.services.task_service import TaskService
 
@@ -133,6 +136,7 @@ async def get_tasks(
     due_date_from: str | None = None,
     due_date_to: str | None = None,
     has_due_date: bool | None = None,
+    tags: str | None = None,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ) -> StandardizedResponse[TaskListResponse]:
@@ -149,6 +153,7 @@ async def get_tasks(
         due_date_from: Filter tasks due after this date (ISO 8601, optional).
         due_date_to: Filter tasks due before this date (ISO 8601, optional).
         has_due_date: Filter tasks with/without due dates (optional).
+        tags: Comma-separated list of tag IDs to filter by (optional).
         current_user: Authenticated user from JWT token.
         session: Database session.
 
@@ -217,6 +222,11 @@ async def get_tasks(
                     },
                 )
 
+        # Parse tag IDs if provided
+        tag_ids = None
+        if tags:
+            tag_ids = [tag_id.strip() for tag_id in tags.split(",") if tag_id.strip()]
+
         # Get tasks with filtering and pagination
         task_list = await service.get_tasks(
             user_id=current_user.id,
@@ -230,6 +240,7 @@ async def get_tasks(
             due_date_from=due_date_from_dt,
             due_date_to=due_date_to_dt,
             has_due_date=has_due_date,
+            tag_ids=tag_ids,
         )
 
         # Log successful retrieval
@@ -1159,6 +1170,181 @@ async def get_due_date_stats(
                 "error": {
                     "code": "INTERNAL_ERROR",
                     "message": "Failed to retrieve statistics. Please try again later.",
+                },
+            },
+        )
+
+
+# ============================================================================
+# Analytics Routes (Dashboard Statistics)
+# ============================================================================
+
+
+@router.get(
+    "/analytics/stats",
+    response_model=StandardizedResponse[AnalyticsStatsResponse],
+)
+async def get_analytics_stats(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> StandardizedResponse[AnalyticsStatsResponse]:
+    """Get dashboard statistics for tasks.
+
+    Returns:
+        - pending_count: Number of pending tasks
+        - completed_today_count: Number of tasks completed today
+        - overdue_count: Number of overdue tasks
+        - total_count: Total number of active (non-deleted) tasks
+
+    Args:
+        current_user: Authenticated user.
+        session: Database session.
+
+    Returns:
+        StandardizedResponse containing analytics statistics.
+    """
+    try:
+        service = TaskService(session)
+
+        # Get analytics stats
+        stats = await service.get_analytics_stats(user_id=current_user.id)
+
+        logger.info(
+            f"Retrieved analytics stats for user_id={current_user.id}: "
+            f"pending={stats.pending_count}, completed_today={stats.completed_today_count}, "
+            f"overdue={stats.overdue_count}, total={stats.total_count}"
+        )
+
+        return StandardizedResponse(
+            success=True, message="Analytics statistics retrieved successfully", data=stats
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to retrieve analytics stats: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "success": False,
+                "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Failed to retrieve analytics. Please try again later.",
+                },
+            },
+        )
+
+
+@router.get(
+    "/analytics/completion-trend",
+    response_model=StandardizedResponse[CompletionTrendResponse],
+)
+async def get_completion_trend(
+    days: int = 7,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> StandardizedResponse[CompletionTrendResponse]:
+    """Get completion trend data for the last N days.
+
+    Returns daily data points showing:
+    - Number of tasks completed
+    - Number of tasks created
+
+    Args:
+        days: Number of days to include (default: 7, max: 30).
+        current_user: Authenticated user.
+        session: Database session.
+
+    Returns:
+        StandardizedResponse containing completion trend data.
+    """
+    try:
+        # Validate days parameter
+        if days < 1 or days > 30:
+            raise ValueError("Days parameter must be between 1 and 30")
+
+        service = TaskService(session)
+
+        # Get completion trend
+        trend = await service.get_completion_trend(user_id=current_user.id, days=days)
+
+        logger.info(
+            f"Retrieved completion trend for user_id={current_user.id}: {days} days, "
+            f"{len(trend.data)} data points"
+        )
+
+        return StandardizedResponse(
+            success=True, message="Completion trend retrieved successfully", data=trend
+        )
+
+    except ValueError as e:
+        logger.warning(f"Invalid days parameter: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "success": False,
+                "error": {"code": "INVALID_PARAMETER", "message": str(e)},
+            },
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to retrieve completion trend: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "success": False,
+                "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Failed to retrieve completion trend. Please try again later.",
+                },
+            },
+        )
+
+
+@router.get(
+    "/analytics/priority-breakdown",
+    response_model=StandardizedResponse[PriorityBreakdownResponse],
+)
+async def get_priority_breakdown(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> StandardizedResponse[PriorityBreakdownResponse]:
+    """Get breakdown of tasks by priority level.
+
+    Returns counts and percentages for each priority level:
+    - low
+    - medium
+    - high
+
+    Args:
+        current_user: Authenticated user.
+        session: Database session.
+
+    Returns:
+        StandardizedResponse containing priority breakdown data.
+    """
+    try:
+        service = TaskService(session)
+
+        # Get priority breakdown
+        breakdown = await service.get_priority_breakdown(user_id=current_user.id)
+
+        logger.info(
+            f"Retrieved priority breakdown for user_id={current_user.id}: "
+            f"total={breakdown.total} tasks"
+        )
+
+        return StandardizedResponse(
+            success=True, message="Priority breakdown retrieved successfully", data=breakdown
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to retrieve priority breakdown: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "success": False,
+                "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Failed to retrieve priority breakdown. Please try again later.",
                 },
             },
         )
