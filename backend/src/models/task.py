@@ -5,11 +5,13 @@ from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from pydantic import field_validator
+from sqlalchemy import DateTime, String
 from sqlmodel import Field, Relationship, SQLModel
 
 from .base import TimestampMixin
 
 if TYPE_CHECKING:
+    from .subtask import Subtask
     from .task_tag import TaskTag
     from .user import User
 
@@ -45,13 +47,21 @@ class TaskBase(SQLModel):
     title: str = Field(index=True, description="Title or summary of the task")
     description: str | None = Field(default=None, description="Detailed description of the task")
     status: TaskStatus = Field(
-        default=TaskStatus.PENDING, index=True, description="Current status of the task"
+        default=TaskStatus.PENDING,
+        sa_type=String(50),
+        index=True,
+        description="Current status of the task",
     )
     priority: TaskPriority = Field(
-        default=TaskPriority.MEDIUM, index=True, description="Priority level of the task"
+        default=TaskPriority.MEDIUM,
+        sa_type=String(50),
+        index=True,
+        description="Priority level of the task",
     )
     due_date: datetime | None = Field(
-        default=None, description="Optional due date for task completion (UTC)"
+        default=None,
+        sa_type=DateTime(timezone=True),
+        description="Optional due date for task completion (UTC)",
     )
     notes: str | None = Field(default=None, description="Optional detailed notes (markdown)")
     manual_order: int | None = Field(default=None, description="User-defined sort order")
@@ -87,15 +97,20 @@ class Task(TaskBase, TimestampMixin, table=True):
         foreign_key="user.id", index=True, description="ID of the user who owns this task"
     )
     completed_at: datetime | None = Field(
-        default=None, description="Timestamp when task was completed"
+        default=None,
+        sa_type=DateTime(timezone=True),
+        description="Timestamp when task was completed",
     )
     deleted_at: datetime | None = Field(
-        default=None, description="Timestamp when task was soft-deleted (null for active tasks)"
+        default=None,
+        sa_type=DateTime(timezone=True),
+        description="Timestamp when task was soft-deleted (null for active tasks)",
     )
 
     # Relationships
     user: "User" = Relationship(back_populates="tasks")
     task_tags: list["TaskTag"] = Relationship(back_populates="task", cascade_delete=True)
+    subtasks: list["Subtask"] = Relationship(back_populates="task", cascade_delete=True)
 
 
 class TaskCreate(TaskBase):

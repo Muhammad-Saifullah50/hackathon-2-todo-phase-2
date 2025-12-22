@@ -1,7 +1,11 @@
-from .tag import Tag, TagCreate, TagResponse, TagUpdate
-from .task import Task, TaskPriority, TaskStatus
-from .task_tag import TaskTag
 from .user import User
+from .task import Task, TaskPriority, TaskStatus
+from .tag import Tag
+from .task_tag import TaskTag
+from .subtask import Subtask
+from .recurrence_pattern import RecurrencePattern
+from .task_template import TaskTemplate
+from .template_tag import TemplateTag
 from .view_preference import ViewPreference
 
 __all__ = [
@@ -9,10 +13,11 @@ __all__ = [
     "Task",
     "TaskPriority",
     "TaskStatus",
-    "ViewPreference",
     "Tag",
-    "TagCreate",
-    "TagResponse",
-    "TagUpdate",
     "TaskTag",
+    "Subtask",
+    "RecurrencePattern",
+    "TaskTemplate",
+    "TemplateTag",
+    "ViewPreference",
 ]

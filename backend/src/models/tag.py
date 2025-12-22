@@ -12,11 +12,13 @@ from pydantic import field_validator
 from sqlmodel import Field, Relationship, SQLModel
 
 from .base import TimestampMixin
+from .template_tag import TemplateTag
 
 if TYPE_CHECKING:
     from .task import Task
     from .task_tag import TaskTag
     from .user import User
+    from .task_template import TaskTemplate
 
 
 class TagBase(SQLModel):
@@ -94,6 +96,10 @@ class Tag(TagBase, TimestampMixin, table=True):
     # Relationships
     user: "User" = Relationship(back_populates="tags")
     task_tags: List["TaskTag"] = Relationship(back_populates="tag", cascade_delete=True)
+    templates: List["TaskTemplate"] = Relationship(
+        back_populates="tags",
+        link_model=TemplateTag,
+    )
 
 
 class TagCreate(TagBase):

@@ -14,7 +14,7 @@ from src.db.session import get_db
 from src.main import app
 
 # Import models to ensure they are registered with SQLModel.metadata
-from src.models import User, Task  # noqa
+from src.models import *  # noqa
 
 # Use in-memory SQLite for tests to avoid external dependencies
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
