@@ -80,7 +80,7 @@ export function KanbanBoard() {
         title: "Task updated",
         description: `Moved to ${COLUMNS.find((c) => c.id === newStatus)?.title}`,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update task status",
@@ -89,7 +89,7 @@ export function KanbanBoard() {
     }
   }
 
-  function handleAddTask(status: string) {
+  function handleAddTask(_status: string) {
     setCreateDialogOpen(true);
   }
 
@@ -133,6 +133,7 @@ export function KanbanBoard() {
       <CreateTaskDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
+        hideTrigger={true}
       />
     </>
   );

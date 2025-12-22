@@ -21,7 +21,7 @@ const plans = [
       "Community support",
     ],
     cta: "Get Started Free",
-    href: "/signup",
+    href: "/sign-up",
     popular: false,
   },
   {
@@ -41,7 +41,7 @@ const plans = [
       "Custom themes and branding",
     ],
     cta: "Start 14-Day Free Trial",
-    href: "/signup?plan=premium",
+    href: "/sign-up?plan=premium",
     popular: true,
   },
 ];

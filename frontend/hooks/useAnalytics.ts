@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
+import { authClient } from "@/lib/auth-client";
 
 interface AnalyticsStatsData {
   pending_count: number;
@@ -52,14 +53,17 @@ interface PriorityBreakdownResponse {
  * Hook to fetch analytics statistics (pending, completed today, overdue, total)
  */
 export function useAnalyticsStats() {
+  const { data: session } = authClient.useSession();
+
   return useQuery<AnalyticsStatsResponse>({
     queryKey: ["analytics", "stats"],
     queryFn: async () => {
-      const response = await apiClient.get("/api/v1/tasks/analytics/stats");
+      const response = await apiClient.get("/tasks/analytics/stats");
       return response.data;
     },
     staleTime: 30000, // Cache for 30 seconds
     refetchOnWindowFocus: true,
+    enabled: !!session, // Only fetch when authenticated
   });
 }
 
@@ -68,16 +72,19 @@ export function useAnalyticsStats() {
  * @param days Number of days to fetch (default: 7, max: 30)
  */
 export function useCompletionTrend(days: number = 7) {
+  const { data: session } = authClient.useSession();
+
   return useQuery<CompletionTrendResponse>({
     queryKey: ["analytics", "completion-trend", days],
     queryFn: async () => {
       const response = await apiClient.get(
-        `/api/v1/tasks/analytics/completion-trend?days=${days}`
+        `/tasks/analytics/completion-trend?days=${days}`
       );
       return response.data;
     },
     staleTime: 60000, // Cache for 1 minute
     refetchOnWindowFocus: true,
+    enabled: !!session, // Only fetch when authenticated
   });
 }
 
@@ -85,13 +92,16 @@ export function useCompletionTrend(days: number = 7) {
  * Hook to fetch priority breakdown (low, medium, high)
  */
 export function usePriorityBreakdown() {
+  const { data: session } = authClient.useSession();
+
   return useQuery<PriorityBreakdownResponse>({
     queryKey: ["analytics", "priority-breakdown"],
     queryFn: async () => {
-      const response = await apiClient.get("/api/v1/tasks/analytics/priority-breakdown");
+      const response = await apiClient.get("/tasks/analytics/priority-breakdown");
       return response.data;
     },
     staleTime: 30000, // Cache for 30 seconds
     refetchOnWindowFocus: true,
+    enabled: !!session, // Only fetch when authenticated
   });
 }

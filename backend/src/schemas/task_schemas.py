@@ -166,6 +166,30 @@ class BulkOperationResponse(BaseModel):
     tasks: list[TaskResponse] = Field(description="List of updated tasks")
 
 
+class ReorderTasksRequest(BaseModel):
+    """Request schema for reordering tasks.
+
+    Attributes:
+        task_ids: Ordered list of task UUIDs representing the new order.
+    """
+
+    task_ids: list[UUID] = Field(
+        min_length=1,
+        max_length=100,
+        description="Ordered list of task UUIDs representing the new order",
+    )
+
+    @field_validator("task_ids")
+    @classmethod
+    def validate_task_ids(cls, v: list[UUID]) -> list[UUID]:
+        """Validate task ID list for duplicates and length."""
+        if len(v) > 100:
+            raise ValueError("Maximum 100 tasks per reorder operation")
+        if len(v) != len(set(v)):
+            raise ValueError("Duplicate task IDs not allowed")
+        return v
+
+
 class DueDateStatsResponse(BaseModel):
     """Response schema for due date statistics.
 

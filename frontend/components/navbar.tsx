@@ -30,7 +30,10 @@ export default function Navbar() {
         ) : session ? (
           <>
             <Button variant="ghost" asChild>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/tasks">My Tasks</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link href="/tasks/dashboard">Dashboard</Link>
             </Button>
             <Button variant="outline" onClick={handleSignOut}>
               Logout

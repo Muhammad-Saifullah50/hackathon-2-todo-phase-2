@@ -31,7 +31,7 @@ export default function SignInPage() {
     const { error } = await authClient.signIn.email({
       email,
       password,
-      callbackURL: "/dashboard",
+      callbackURL: "/tasks/dashboard",
     });
 
     setIsLoading(false);
@@ -47,7 +47,7 @@ export default function SignInPage() {
         title: "Success",
         description: "Logged in successfully!",
       });
-      router.push("/dashboard");
+      router.push("/tasks/dashboard");
     }
   };
 

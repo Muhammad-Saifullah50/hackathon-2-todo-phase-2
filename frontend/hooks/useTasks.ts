@@ -15,6 +15,7 @@ import {
   getTrash,
   restoreTask,
   permanentDeleteTask,
+  reorderTasks,
 } from '@/lib/api/tasks';
 import type { CreateTaskRequest, Task, TaskQueryParams, TaskStatus } from '@/lib/types/task';
 import { useToast } from './use-toast';
@@ -616,6 +617,76 @@ export function usePermanentDelete() {
         title: "Task permanently deleted",
         description: "This action cannot be undone.",
       });
+    },
+  });
+}
+
+/**
+ * Hook to reorder tasks with optimistic updates.
+ * Updates the manual_order field for the provided task IDs.
+ */
+export function useReorderTasks() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: (taskIds: string[]) => reorderTasks(taskIds),
+
+    // Optimistic update: reorder tasks immediately
+    onMutate: async (taskIds) => {
+      await queryClient.cancelQueries({ queryKey: tasksKeys.all });
+
+      const previousQueries = queryClient.getQueriesData({ queryKey: tasksKeys.all });
+
+      // Optimistically reorder tasks in all caches
+      queryClient.setQueriesData({ queryKey: tasksKeys.all }, (old: any) => {
+        if (!old || !old.data || !old.data.tasks) return old;
+
+        const taskMap = new Map<string, Task>(
+          old.data.tasks.map((task: Task) => [task.id, task])
+        );
+        const reorderedTasks: Task[] = [];
+        for (let i = 0; i < taskIds.length; i++) {
+          const task = taskMap.get(taskIds[i]);
+          if (task) {
+            reorderedTasks.push({ ...task, manual_order: i });
+          }
+        }
+
+        // Add any tasks that weren't in the reorder list at the end
+        const reorderSet = new Set(taskIds);
+        const remainingTasks = old.data.tasks.filter(
+          (task: Task) => !reorderSet.has(task.id)
+        );
+
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            tasks: [...reorderedTasks, ...remainingTasks],
+          },
+        };
+      });
+
+      return { previousQueries };
+    },
+
+    onError: (error, _variables, context) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Failed to reorder tasks",
+        description: error instanceof Error ? error.message : "An error occurred.",
+      });
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tasksKeys.all });
     },
   });
 }

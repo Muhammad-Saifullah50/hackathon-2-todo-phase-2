@@ -12,16 +12,20 @@ import { Task } from "@/lib/types/task";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Circle, Clock, Edit, Trash2, RotateCcw } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Edit, Trash2, RotateCcw, FileText, Repeat } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { EditTaskDialog } from "./EditTaskDialog";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+import { RecurringConfirmDialog } from "./RecurringConfirmDialog";
 import { DueDateBadge } from "./DueDateBadge";
 import { TagBadgeList } from "./TagBadge";
 import { HighlightedText } from "./SearchBar";
 import { useCelebration } from "./CelebrationAnimation";
 import { useToggleTask, useDeleteTask, useRestoreTask, usePermanentDelete } from "@/hooks/useTasks";
 import { listItem, cardHover, useReducedMotion } from "@/lib/animations";
+import { SubtaskProgress } from "./SubtaskProgress";
+import { NotesSection } from "./NotesSection";
+import { useRecurrencePattern, useDeleteRecurrence } from "@/hooks/useRecurring";
 
 interface TaskCardProps {
   task: Task;
@@ -34,14 +38,44 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPermanentDeleteDialogOpen, setIsPermanentDeleteDialogOpen] = useState(false);
+  const [isRecurringDeleteDialogOpen, setIsRecurringDeleteDialogOpen] = useState(false);
 
   const { mutate: toggleTask } = useToggleTask();
   const { mutate: deleteTask } = useDeleteTask();
   const { mutate: restoreTask } = useRestoreTask();
   const { mutate: permanentDelete } = usePermanentDelete();
+  const { mutate: deleteRecurrence } = useDeleteRecurrence();
   const { triggerCelebration, CelebrationComponent } = useCelebration();
   const prefersReducedMotion = useReducedMotion();
   const isCompleted = task.status === "completed";
+  const { data: recurrencePattern } = useRecurrencePattern(task.recurrence_pattern_id ? task.id : undefined);
+
+  // Format recurrence pattern summary
+  const getRecurrenceSummary = () => {
+    if (!recurrencePattern) return "Recurring";
+
+    const { frequency, interval, days_of_week } = recurrencePattern;
+    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    if (frequency === "daily") {
+      return interval === 1 ? "Daily" : `Every ${interval} days`;
+    }
+
+    if (frequency === "weekly") {
+      const prefix = interval === 1 ? "Weekly" : `Every ${interval} weeks`;
+      if (days_of_week && days_of_week.length > 0) {
+        const days = days_of_week.map(d => dayNames[d]).join(", ");
+        return `${prefix} on ${days}`;
+      }
+      return prefix;
+    }
+
+    if (frequency === "monthly") {
+      return interval === 1 ? "Monthly" : `Every ${interval} months`;
+    }
+
+    return "Recurring";
+  };
 
   const StatusIcon = isCompleted ? CheckCircle2 : Circle;
   const statusColor = isCompleted
@@ -62,9 +96,29 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
     toggleTask(task.id);
   };
 
+  const handleDeleteClick = () => {
+    // Check if task has recurrence pattern
+    if (task.recurrence_pattern_id) {
+      setIsRecurringDeleteDialogOpen(true);
+    } else {
+      setIsDeleteDialogOpen(true);
+    }
+  };
+
   const handleDelete = () => {
     deleteTask(task.id);
     setIsDeleteDialogOpen(false);
+  };
+
+  const handleRecurringDelete = (action: "this" | "all") => {
+    if (action === "this") {
+      // Delete only this instance
+      deleteTask(task.id);
+    } else {
+      // Delete recurrence pattern (stops all future instances)
+      deleteRecurrence(task.id);
+      deleteTask(task.id);
+    }
   };
 
   const handleRestore = () => {
@@ -130,6 +184,31 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
                     {task.priority}
                   </Badge>
 
+                  {/* Note Icon Indicator */}
+                  {task.notes && task.notes.trim() !== "" && (
+                    <Badge
+                      variant="outline"
+                      className="h-6 px-1.5"
+                      title="Has notes"
+                    >
+                      <FileText className="h-3 w-3 text-muted-foreground" />
+                    </Badge>
+                  )}
+
+                  {/* Recurring Icon Indicator */}
+                  {task.recurrence_pattern_id && (
+                    <Badge
+                      variant="outline"
+                      className="h-6 px-2 flex items-center gap-1"
+                      title={getRecurrenceSummary()}
+                    >
+                      <Repeat className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {getRecurrenceSummary()}
+                      </span>
+                    </Badge>
+                  )}
+
                   {isTrashView ? (
                     <>
                       {/* Restore Button */}
@@ -172,7 +251,7 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 text-destructive hover:text-destructive"
-                        onClick={() => setIsDeleteDialogOpen(true)}
+                        onClick={handleDeleteClick}
                         aria-label="Delete task"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -202,6 +281,24 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
                   tags={task.tags}
                   maxVisible={3}
                   size="sm"
+                />
+              </div>
+            )}
+
+            {/* Subtask Progress */}
+            {task.subtasks && task.subtasks.length > 0 && (
+              <div className="mt-2">
+                <SubtaskProgress subtasks={task.subtasks} />
+              </div>
+            )}
+
+            {/* Notes Section */}
+            {task.notes && task.notes.trim() !== "" && (
+              <div className="mt-2">
+                <NotesSection
+                  notes={task.notes}
+                  updatedAt={task.updated_at}
+                  defaultExpanded={false}
                 />
               </div>
             )}
@@ -260,6 +357,15 @@ export function TaskCard({ task, variant: _variant = "list", isTrashView = false
       onConfirm={handlePermanentDelete}
       taskTitle={task.title}
       isPermanent={true}
+    />
+
+    {/* Recurring Task Delete Confirmation Dialog */}
+    <RecurringConfirmDialog
+      open={isRecurringDeleteDialogOpen}
+      onOpenChange={setIsRecurringDeleteDialogOpen}
+      onConfirm={handleRecurringDelete}
+      type="delete"
+      taskTitle={task.title}
     />
   </>
   );

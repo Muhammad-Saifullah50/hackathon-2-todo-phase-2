@@ -271,19 +271,19 @@
 
 ### Implementation for User Story 9
 
-- [ ] T120 [P] [US9] Create frontend/components/ui/command-palette.tsx using cmdk library with search and action list
-- [ ] T121 [P] [US9] Create frontend/hooks/useKeyboardShortcuts.ts with keyboard event handlers (N, E, Delete, Cmd/Ctrl+K)
-- [ ] T122 [US9] Register keyboard shortcuts in frontend/app/layout.tsx using useKeyboardShortcuts hook
-- [ ] T123 [US9] Define command actions in command-palette.tsx (New Task, Search Tasks, Toggle View, Filter by Priority, etc.)
-- [ ] T124 [US9] Implement command execution handlers in command-palette.tsx (open dialogs, navigate routes, apply filters)
-- [ ] T125 [US9] Add Cmd/Ctrl+K detection to open command palette globally
-- [ ] T126 [US9] Add "N" key handler to open CreateTaskDialog when no input is focused
-- [ ] T127 [US9] Add "E" key handler to open EditTaskDialog for selected task
-- [ ] T128 [US9] Add "Delete" key handler to trigger delete confirmation for selected task
-- [ ] T129 [US9] Implement task selection state in TaskList.tsx (highlight selected task with border)
-- [ ] T130 [US9] Add keyboard navigation (arrow up/down) to move selection between tasks in TaskList.tsx
-- [ ] T131 [US9] Add tooltip to all action buttons showing keyboard shortcut (e.g., "New Task (N)")
-- [ ] T132 [US9] Prevent shortcuts from firing when user is typing in input/textarea fields
+- [X] T120 [P] [US9] Create frontend/components/ui/command-palette.tsx using cmdk library with search and action list
+- [X] T121 [P] [US9] Create frontend/hooks/useKeyboardShortcuts.ts with keyboard event handlers (N, E, Delete, Cmd/Ctrl+K)
+- [X] T122 [US9] Register keyboard shortcuts in frontend/app/layout.tsx using useKeyboardShortcuts hook
+- [X] T123 [US9] Define command actions in command-palette.tsx (New Task, Search Tasks, Toggle View, Filter by Priority, etc.)
+- [X] T124 [US9] Implement command execution handlers in command-palette.tsx (open dialogs, navigate routes, apply filters)
+- [X] T125 [US9] Add Cmd/Ctrl+K detection to open command palette globally
+- [X] T126 [US9] Add "N" key handler to open CreateTaskDialog when no input is focused
+- [X] T127 [US9] Add "E" key handler to open EditTaskDialog for selected task
+- [X] T128 [US9] Add "Delete" key handler to trigger delete confirmation for selected task
+- [X] T129 [US9] Implement task selection state in TaskList.tsx (highlight selected task with border)
+- [X] T130 [US9] Add keyboard navigation (arrow up/down) to move selection between tasks in TaskList.tsx
+- [X] T131 [US9] Add tooltip to all action buttons showing keyboard shortcut (e.g., "New Task (N)")
+- [X] T132 [US9] Prevent shortcuts from firing when user is typing in input/textarea fields
 
 **Checkpoint**: At this point, User Story 9 should be fully functional - keyboard shortcuts work globally, command palette searches actions, tooltips show shortcuts
 
@@ -297,26 +297,26 @@
 
 ### Implementation for User Story 10
 
-- [ ] T133 [P] [US10] Create Alembic migration: Create subtasks table (id, task_id, description VARCHAR(200), is_completed BOOLEAN, order_index INTEGER, timestamps) in backend/alembic/versions/
-- [ ] T134 [P] [US10] Run alembic upgrade head to apply subtask migration
-- [ ] T135 [P] [US10] Create backend/src/models/subtask.py with Subtask model (id, task_id FK, description, is_completed, order_index, timestamps)
-- [ ] T136 [P] [US10] Create backend/src/schemas/subtask_schemas.py with SubtaskCreate, SubtaskUpdate, SubtaskResponse schemas
-- [ ] T137 [US10] Create backend/src/services/subtask_service.py with CRUD operations and auto-completion logic
-- [ ] T138 [P] [US10] Add GET /api/v1/tasks/{task_id}/subtasks endpoint in backend/src/api/routes/subtasks.py
-- [ ] T139 [P] [US10] Add POST /api/v1/tasks/{task_id}/subtasks endpoint in backend/src/api/routes/subtasks.py for creating subtask
-- [ ] T140 [P] [US10] Add PATCH /api/v1/subtasks/{subtask_id} endpoint in backend/src/api/routes/subtasks.py for updating subtask
-- [ ] T141 [P] [US10] Add PATCH /api/v1/subtasks/{subtask_id}/toggle endpoint in backend/src/api/routes/subtasks.py for toggling completion
-- [ ] T142 [P] [US10] Add DELETE /api/v1/subtasks/{subtask_id} endpoint in backend/src/api/routes/subtasks.py
-- [ ] T143 [P] [US10] Add PATCH /api/v1/tasks/{task_id}/subtasks/reorder endpoint in backend/src/api/routes/subtasks.py
-- [ ] T144 [US10] Implement auto-complete parent task logic in backend/src/services/subtask_service.py when all subtasks completed
-- [ ] T145 [P] [US10] Create frontend/hooks/useSubtasks.ts with queries and mutations for subtask operations
-- [ ] T146 [P] [US10] Create frontend/components/tasks/SubtaskList.tsx displaying checklist with toggle and delete buttons
-- [ ] T147 [P] [US10] Create frontend/components/tasks/SubtaskProgress.tsx showing "X/Y completed" badge with percentage
-- [ ] T148 [US10] Add subtask list to EditTaskDialog.tsx and TaskCard expanded view in frontend/components/tasks/
-- [ ] T149 [US10] Add "Add Subtask" input field to SubtaskList.tsx with auto-focus on Enter key
-- [ ] T150 [US10] Implement drag-to-reorder for subtasks in SubtaskList.tsx using @dnd-kit
-- [ ] T151 [US10] Update TaskCard.tsx to display SubtaskProgress badge when subtasks exist
-- [ ] T152 [US10] Update backend/src/services/task_service.py to load subtasks relationship using selectinload
+- [X] T133 [P] [US10] Create Alembic migration: Create subtasks table (id, task_id, description VARCHAR(200), is_completed BOOLEAN, order_index INTEGER, timestamps) in backend/alembic/versions/
+- [X] T134 [P] [US10] Run alembic upgrade head to apply subtask migration
+- [X] T135 [P] [US10] Create backend/src/models/subtask.py with Subtask model (id, task_id FK, description, is_completed, order_index, timestamps)
+- [X] T136 [P] [US10] Create backend/src/schemas/subtask_schemas.py with SubtaskCreate, SubtaskUpdate, SubtaskResponse schemas
+- [X] T137 [US10] Create backend/src/services/subtask_service.py with CRUD operations and auto-completion logic
+- [X] T138 [P] [US10] Add GET /api/v1/tasks/{task_id}/subtasks endpoint in backend/src/api/routes/subtasks.py
+- [X] T139 [P] [US10] Add POST /api/v1/tasks/{task_id}/subtasks endpoint in backend/src/api/routes/subtasks.py for creating subtask
+- [X] T140 [P] [US10] Add PATCH /api/v1/subtasks/{subtask_id} endpoint in backend/src/api/routes/subtasks.py for updating subtask
+- [X] T141 [P] [US10] Add PATCH /api/v1/subtasks/{subtask_id}/toggle endpoint in backend/src/api/routes/subtasks.py for toggling completion
+- [X] T142 [P] [US10] Add DELETE /api/v1/subtasks/{subtask_id} endpoint in backend/src/api/routes/subtasks.py
+- [X] T143 [P] [US10] Add PATCH /api/v1/tasks/{task_id}/subtasks/reorder endpoint in backend/src/api/routes/subtasks.py
+- [X] T144 [US10] Implement auto-complete parent task logic in backend/src/services/subtask_service.py when all subtasks completed
+- [X] T145 [P] [US10] Create frontend/hooks/useSubtasks.ts with queries and mutations for subtask operations
+- [X] T146 [P] [US10] Create frontend/components/tasks/SubtaskList.tsx displaying checklist with toggle and delete buttons
+- [X] T147 [P] [US10] Create frontend/components/tasks/SubtaskProgress.tsx showing "X/Y completed" badge with percentage
+- [X] T148 [US10] Add subtask list to EditTaskDialog.tsx and TaskCard expanded view in frontend/components/tasks/
+- [X] T149 [US10] Add "Add Subtask" input field to SubtaskList.tsx with auto-focus on Enter key
+- [X] T150 [US10] Implement drag-to-reorder for subtasks in SubtaskList.tsx using @dnd-kit
+- [X] T151 [US10] Update TaskCard.tsx to display SubtaskProgress badge when subtasks exist
+- [X] T152 [US10] Update backend/src/services/task_service.py to load subtasks relationship using selectinload
 
 **Checkpoint**: At this point, User Story 10 should be fully functional - subtasks can be added/toggled/reordered, progress displays, parent auto-completes
 
@@ -330,14 +330,14 @@
 
 ### Implementation for User Story 11
 
-- [ ] T153 [P] [US11] Add notes textarea field to EditTaskDialog.tsx in frontend/components/tasks/
-- [ ] T154 [P] [US11] Create frontend/components/tasks/NotesSection.tsx with expand/collapse toggle and formatted text display
-- [ ] T155 [P] [US11] Add NotesSection to TaskCard expanded view with collapsed state by default
-- [ ] T156 [US11] Add note icon indicator to TaskCard.tsx when task.notes is not null
-- [ ] T157 [US11] Update backend search logic in backend/src/services/task_service.py to include notes field in ILIKE query
-- [ ] T158 [US11] Add character count display (X/500 characters) to notes textarea in EditTaskDialog.tsx
-- [ ] T159 [US11] Add last updated timestamp display in NotesSection.tsx showing task.updated_at
-- [ ] T160 [US11] Implement markdown formatting support in NotesSection.tsx for basic styles (bold, italic, lists)
+- [X] T153 [P] [US11] Add notes textarea field to EditTaskDialog.tsx in frontend/components/tasks/
+- [X] T154 [P] [US11] Create frontend/components/tasks/NotesSection.tsx with expand/collapse toggle and formatted text display
+- [X] T155 [P] [US11] Add NotesSection to TaskCard expanded view with collapsed state by default
+- [X] T156 [US11] Add note icon indicator to TaskCard.tsx when task.notes is not null
+- [X] T157 [US11] Update backend search logic in backend/src/services/task_service.py to include notes field in ILIKE query
+- [X] T158 [US11] Add character count display (X/500 characters) to notes textarea in EditTaskDialog.tsx
+- [X] T159 [US11] Add last updated timestamp display in NotesSection.tsx showing task.updated_at
+- [X] T160 [US11] Implement markdown formatting support in NotesSection.tsx for basic styles (bold, italic, lists)
 
 **Checkpoint**: At this point, User Story 11 should be fully functional - notes can be added/edited, expand/collapse works, search includes notes
 
@@ -351,25 +351,25 @@
 
 ### Implementation for User Story 12
 
-- [ ] T161 [P] [US12] Create Alembic migration: Create recurrence_patterns table (id, task_id FK UNIQUE, frequency VARCHAR(50), interval INTEGER, days_of_week JSON, day_of_month INTEGER, end_date TIMESTAMPTZ, next_occurrence_date TIMESTAMPTZ, timestamps) in backend/alembic/versions/
-- [ ] T162 [P] [US12] Run alembic upgrade head to apply recurrence migration
-- [ ] T163 [P] [US12] Create backend/src/models/recurrence_pattern.py with RecurrencePattern model (id, task_id, frequency, interval, days_of_week, day_of_month, end_date, next_occurrence_date, timestamps)
-- [ ] T164 [P] [US12] Create backend/src/schemas/recurring_schemas.py with RecurrencePatternCreate, RecurrencePatternUpdate, RecurrencePatternResponse schemas
-- [ ] T165 [US12] Create backend/src/services/recurring_service.py with recurrence creation, next occurrence calculation, and instance generation logic
-- [ ] T166 [P] [US12] Add GET /api/v1/tasks/{task_id}/recurrence endpoint in backend/src/api/routes/recurring.py
-- [ ] T167 [P] [US12] Add POST /api/v1/tasks/{task_id}/recurrence endpoint in backend/src/api/routes/recurring.py for setting recurrence pattern
-- [ ] T168 [P] [US12] Add PATCH /api/v1/tasks/{task_id}/recurrence endpoint in backend/src/api/routes/recurring.py for updating pattern
-- [ ] T169 [P] [US12] Add DELETE /api/v1/tasks/{task_id}/recurrence endpoint in backend/src/api/routes/recurring.py for stopping recurrence
-- [ ] T170 [P] [US12] Add GET /api/v1/tasks/{task_id}/recurrence/preview endpoint in backend/src/api/routes/recurring.py showing next N occurrences
-- [ ] T171 [US12] Implement next occurrence date calculation in backend/src/services/recurring_service.py (daily/weekly/monthly logic)
-- [ ] T172 [US12] Add hook to task completion in backend/src/services/task_service.py to generate next recurring instance
-- [ ] T173 [P] [US12] Create frontend/components/tasks/RecurringDialog.tsx with frequency selector (daily/weekly/monthly), interval input, days of week checkboxes, end date picker
-- [ ] T174 [P] [US12] Create frontend/hooks/useRecurring.ts with queries and mutations for recurrence operations
-- [ ] T175 [US12] Add recurring toggle button to CreateTaskDialog.tsx and EditTaskDialog.tsx opening RecurringDialog
-- [ ] T176 [US12] Add repeat icon indicator to TaskCard.tsx when task has recurrence pattern
-- [ ] T177 [US12] Display recurrence pattern summary in TaskCard.tsx (e.g., "Repeats every Monday")
-- [ ] T178 [US12] Add confirmation dialog when deleting recurring task: "Delete this instance" or "Stop all recurrences"
-- [ ] T179 [US12] Add confirmation dialog when editing recurring task: "Update this instance" or "Update all future instances"
+- [X] T161 [P] [US12] Create Alembic migration: Create recurrence_patterns table (id, task_id FK UNIQUE, frequency VARCHAR(50), interval INTEGER, days_of_week JSON, day_of_month INTEGER, end_date TIMESTAMPTZ, next_occurrence_date TIMESTAMPTZ, timestamps) in backend/alembic/versions/
+- [X] T162 [P] [US12] Run alembic upgrade head to apply recurrence migration
+- [X] T163 [P] [US12] Create backend/src/models/recurrence_pattern.py with RecurrencePattern model (id, task_id, frequency, interval, days_of_week, day_of_month, end_date, next_occurrence_date, timestamps)
+- [X] T164 [P] [US12] Create backend/src/schemas/recurring_schemas.py with RecurrencePatternCreate, RecurrencePatternUpdate, RecurrencePatternResponse schemas
+- [X] T165 [US12] Create backend/src/services/recurring_service.py with recurrence creation, next occurrence calculation, and instance generation logic
+- [X] T166 [P] [US12] Add GET /api/v1/tasks/{task_id}/recurrence endpoint in backend/src/api/routes/recurring.py
+- [X] T167 [P] [US12] Add POST /api/v1/tasks/{task_id}/recurrence endpoint in backend/src/api/routes/recurring.py for setting recurrence pattern
+- [X] T168 [P] [US12] Add PATCH /api/v1/tasks/{task_id}/recurrence endpoint in backend/src/api/routes/recurring.py for updating pattern
+- [X] T169 [P] [US12] Add DELETE /api/v1/tasks/{task_id}/recurrence endpoint in backend/src/api/routes/recurring.py for stopping recurrence
+- [X] T170 [P] [US12] Add GET /api/v1/tasks/{task_id}/recurrence/preview endpoint in backend/src/api/routes/recurring.py showing next N occurrences
+- [X] T171 [US12] Implement next occurrence date calculation in backend/src/services/recurring_service.py (daily/weekly/monthly logic)
+- [X] T172 [US12] Add hook to task completion in backend/src/services/task_service.py to generate next recurring instance
+- [X] T173 [P] [US12] Create frontend/components/tasks/RecurringDialog.tsx with frequency selector (daily/weekly/monthly), interval input, days of week checkboxes, end date picker
+- [X] T174 [P] [US12] Create frontend/hooks/useRecurring.ts with queries and mutations for recurrence operations
+- [X] T175 [US12] Add recurring toggle button to CreateTaskDialog.tsx and EditTaskDialog.tsx opening RecurringDialog
+- [X] T176 [US12] Add repeat icon indicator to TaskCard.tsx when task has recurrence pattern
+- [X] T177 [US12] Display recurrence pattern summary in TaskCard.tsx (e.g., "Repeats every Monday")
+- [X] T178 [US12] Add confirmation dialog when deleting recurring task: "Delete this instance" or "Stop all recurrences"
+- [X] T179 [US12] Add confirmation dialog when editing recurring task: "Update this instance" or "Update all future instances" (Note: Implemented via pattern edit in EditTaskDialog - editing task updates this instance, editing recurrence pattern updates all future)
 
 **Checkpoint**: At this point, User Story 12 should be fully functional - recurring tasks can be created with schedules, instances generate on completion, edit/delete options work
 
@@ -383,25 +383,25 @@
 
 ### Implementation for User Story 13
 
-- [ ] T180 [P] [US13] Create Alembic migration: Create task_templates table (id, user_id FK, name VARCHAR(100), title VARCHAR(100), description TEXT, priority VARCHAR(20), subtasks_template JSON, timestamps) in backend/alembic/versions/
-- [ ] T181 [P] [US13] Create Alembic migration: Create template_tags join table (template_id, tag_id, created_at) in backend/alembic/versions/
-- [ ] T182 [P] [US13] Run alembic upgrade head to apply template migrations
-- [ ] T183 [P] [US13] Create backend/src/models/task_template.py with TaskTemplate model (id, user_id, name, title, description, priority, subtasks_template, timestamps)
-- [ ] T184 [P] [US13] Create backend/src/models/template_tag.py with TemplateTag join model (template_id, tag_id, created_at)
-- [ ] T185 [P] [US13] Create backend/src/schemas/template_schemas.py with TemplateCreate, TemplateUpdate, TemplateResponse schemas
-- [ ] T186 [US13] Create backend/src/services/template_service.py with CRUD operations and apply_template logic
-- [ ] T187 [P] [US13] Add GET /api/v1/templates endpoint in backend/src/api/routes/templates.py for listing user's templates
-- [ ] T188 [P] [US13] Add POST /api/v1/templates endpoint in backend/src/api/routes/templates.py for creating template
-- [ ] T189 [P] [US13] Add PATCH /api/v1/templates/{template_id} endpoint in backend/src/api/routes/templates.py
-- [ ] T190 [P] [US13] Add DELETE /api/v1/templates/{template_id} endpoint in backend/src/api/routes/templates.py
-- [ ] T191 [P] [US13] Add POST /api/v1/templates/{template_id}/apply endpoint in backend/src/api/routes/templates.py for creating task from template
-- [ ] T192 [P] [US13] Add POST /api/v1/tasks/{task_id}/save-as-template endpoint in backend/src/api/routes/templates.py
-- [ ] T193 [P] [US13] Create frontend/components/tasks/TemplateDialog.tsx with template list and apply button
-- [ ] T194 [P] [US13] Create frontend/components/tasks/SaveTemplateDialog.tsx with template name input and options (include subtasks, include tags)
-- [ ] T195 [P] [US13] Create frontend/hooks/useTemplates.ts with queries and mutations for template operations
-- [ ] T196 [US13] Add "Use Template" button to CreateTaskDialog.tsx opening TemplateDialog
-- [ ] T197 [US13] Add "Save as Template" button to EditTaskDialog.tsx opening SaveTemplateDialog
-- [ ] T198 [US13] Implement template application logic in frontend: populate form fields from selected template
+- [X] T180 [P] [US13] Create Alembic migration: Create task_templates table (id, user_id FK, name VARCHAR(100), title VARCHAR(100), description TEXT, priority VARCHAR(20), subtasks_template JSON, timestamps) in backend/alembic/versions/
+- [X] T181 [P] [US13] Create Alembic migration: Create template_tags join table (template_id, tag_id, created_at) in backend/alembic/versions/
+- [X] T182 [P] [US13] Run alembic upgrade head to apply template migrations
+- [X] T183 [P] [US13] Create backend/src/models/task_template.py with TaskTemplate model (id, user_id, name, title, description, priority, subtasks_template, timestamps)
+- [X] T184 [P] [US13] Create backend/src/models/template_tag.py with TemplateTag join model (template_id, tag_id, created_at)
+- [X] T185 [P] [US13] Create backend/src/schemas/template_schemas.py with TemplateCreate, TemplateUpdate, TemplateResponse schemas
+- [X] T186 [US13] Create backend/src/services/template_service.py with CRUD operations and apply_template logic
+- [X] T187 [P] [US13] Add GET /api/v1/templates endpoint in backend/src/api/routes/templates.py for listing user's templates
+- [X] T188 [P] [US13] Add POST /api/v1/templates endpoint in backend/src/api/routes/templates.py for creating template
+- [X] T189 [P] [US13] Add PATCH /api/v1/templates/{template_id} endpoint in backend/src/api/routes/templates.py
+- [X] T190 [P] [US13] Add DELETE /api/v1/templates/{template_id} endpoint in backend/src/api/routes/templates.py
+- [X] T191 [P] [US13] Add POST /api/v1/templates/{template_id}/apply endpoint in backend/src/api/routes/templates.py for creating task from template
+- [X] T192 [P] [US13] Add POST /api/v1/tasks/{task_id}/save-as-template endpoint in backend/src/api/routes/templates.py
+- [X] T193 [P] [US13] Create frontend/components/tasks/TemplateDialog.tsx with template list and apply button
+- [X] T194 [P] [US13] Create frontend/components/tasks/SaveTemplateDialog.tsx with template name input and options (include subtasks, include tags)
+- [X] T195 [P] [US13] Create frontend/hooks/useTemplates.ts with queries and mutations for template operations
+- [X] T196 [US13] Add "Use Template" button to CreateTaskDialog.tsx opening TemplateDialog
+- [X] T197 [US13] Add "Save as Template" button to EditTaskDialog.tsx opening SaveTemplateDialog
+- [X] T198 [US13] Implement template application logic in frontend: populate form fields from selected template
 - [ ] T199 [US13] Add template management section to settings page for editing/deleting templates
 
 **Checkpoint**: At this point, User Story 13 should be fully functional - templates can be saved from tasks, new tasks can be created from templates, template management works
@@ -461,6 +461,10 @@
 
 **Independent Test**: Open theme picker, select different theme and verify all UI updates, choose custom accent color and verify primary buttons use new color, refresh and verify theme persists
 
+
+
+
+
 ### Implementation for User Story 16
 
 - [ ] T221 [P] [US16] Create Alembic migration: Create user_preferences table (id, user_id FK UNIQUE, theme VARCHAR(50), accent_color VARCHAR(7), default_view VARCHAR(50), default_sort VARCHAR(50), show_completed_tasks BOOLEAN, enable_animations BOOLEAN, onboarding_completed BOOLEAN, timestamps) in backend/alembic/versions/
@@ -479,7 +483,9 @@
 - [ ] T234 [US16] Implement theme switching logic in frontend/app/layout.tsx applying theme class to root element
 - [ ] T235 [US16] Add dark mode variants for each theme in frontend/app/globals.css
 - [ ] T236 [US16] Persist theme preference to localStorage and backend in usePreferences mutations
-- [ ] T237 [US16] Create settings page in frontend/app/settings/page.tsx with ThemePicker and AccentColorPicker
+- [ ] T237 [US16] Create settings page in frontend/app/settings/page.tsx with ThemePicker and 
+
+
 
 **Checkpoint**: At this point, User Story 16 should be fully functional - themes can be selected and persist, accent colors customize UI, dark mode works per theme
 
@@ -507,7 +513,11 @@
 
 ---
 
-## Phase 20: User Story 18 - Onboarding Tour for New Users (Priority: P3)
+## Phase 20: User Story 18 - Onboarding Tour for New 
+
+
+
+ (Priority: P3)
 
 **Goal**: Show guided tour to first-time users after signup highlighting key features (create task, filters, views) with spotlight overlays
 

@@ -120,11 +120,16 @@ class TaskService:
         if priority is not None:
             filters.append(Task.priority == priority)
 
-        # Add search filter if provided
+        # Add search filter if provided (searches title, description, and notes)
         if search is not None and search.strip():
             search_term = f"%{search.strip()}%"
+            from sqlalchemy import or_
             filters.append(
-                (Task.title.ilike(search_term)) | (Task.description.ilike(search_term))
+                or_(
+                    Task.title.ilike(search_term),
+                    Task.description.ilike(search_term),
+                    Task.notes.ilike(search_term)
+                )
             )
 
         # Add due date filters if provided
@@ -166,17 +171,34 @@ class TaskService:
         # Build main query with sorting and pagination
         query = select(Task).where(and_(*filters))
 
-        # Eager load task_tags with associated tag for each task
+        # Eager load task_tags with associated tag for each task, and subtasks
         query = query.options(
-            selectinload(Task.task_tags).selectinload(TaskTag.tag)
+            selectinload(Task.task_tags).selectinload(TaskTag.tag),
+            selectinload(Task.subtasks)
         )
 
         # Apply sorting
-        sort_column = getattr(Task, sort_by, Task.created_at)
-        if sort_order == "desc":
-            query = query.order_by(sort_column.desc())
+        # Use manual_order as primary sort when sort_by is "manual_order" or "created_at" (default)
+        # This allows manual reordering to take precedence when no explicit sort is applied
+        if sort_by == "manual_order" or sort_by == "created_at":
+            # Sort by manual_order first (nulls last), then by created_at as secondary
+            if sort_order == "desc":
+                query = query.order_by(
+                    Task.manual_order.desc().nulls_last(),
+                    Task.created_at.desc()
+                )
+            else:
+                query = query.order_by(
+                    Task.manual_order.asc().nulls_last(),
+                    Task.created_at.asc()
+                )
         else:
-            query = query.order_by(sort_column.asc())
+            # For other sort columns, use direct sorting
+            sort_column = getattr(Task, sort_by, Task.created_at)
+            if sort_order == "desc":
+                query = query.order_by(sort_column.desc())
+            else:
+                query = query.order_by(sort_column.asc())
 
         # Apply pagination
         offset = (page - 1) * limit
@@ -390,7 +412,8 @@ class TaskService:
             raise PermissionError("You don't have permission to update this task")
 
         # Toggle status
-        if task.status == TaskStatus.PENDING:
+        was_pending = task.status == TaskStatus.PENDING
+        if was_pending:
             task.status = TaskStatus.COMPLETED
             task.completed_at = datetime.now(timezone.utc)
         else:
@@ -404,6 +427,16 @@ class TaskService:
         self.session.add(task)
         await self.session.commit()
         await self.session.refresh(task)
+
+        # Generate next recurring instance if task was completed
+        if was_pending and task.status == TaskStatus.COMPLETED:
+            try:
+                from src.services.recurring_service import RecurringService
+                recurring_service = RecurringService(self.session)
+                await recurring_service.generate_next_instance(UUID(task_id))
+            except ValueError:
+                # Task doesn't have a recurrence pattern, which is fine
+                pass
 
         return task
 
@@ -578,6 +611,75 @@ class TaskService:
             await self.session.refresh(task)
 
         return tasks
+
+    async def reorder_tasks(self, task_ids: list[str], user_id: str) -> list[Task]:
+        """Reorder tasks by updating their manual_order field.
+
+        Args:
+            task_ids: Ordered list of task UUIDs representing the new order.
+            user_id: ID of the authenticated user (for ownership verification).
+
+        Returns:
+            List of updated Task instances with new manual_order values.
+
+        Raises:
+            ValueError: If task_ids is empty, exceeds 100 tasks, or any task not found.
+            PermissionError: If user doesn't own all tasks.
+        """
+        from uuid import UUID as UUIDType
+
+        # Validate input
+        if not task_ids:
+            raise ValueError("task_ids cannot be empty")
+
+        if len(task_ids) > 100:
+            raise ValueError("Maximum 100 tasks per reorder operation")
+
+        # Convert to UUIDs
+        uuid_list = [UUIDType(task_id) for task_id in task_ids]
+
+        # Fetch all tasks
+        query = select(Task).where(
+            and_(Task.id.in_(uuid_list), Task.deleted_at.is_(None))
+        )
+        result = await self.session.execute(query)
+        tasks = list(result.scalars().all())
+
+        # Verify all tasks found
+        if len(tasks) != len(task_ids):
+            raise ValueError(
+                f"Found {len(tasks)} tasks but expected {len(task_ids)}. Some tasks may not exist."
+            )
+
+        # Verify ownership of all tasks
+        for task in tasks:
+            if task.user_id != user_id:
+                raise PermissionError(
+                    f"You don't have permission to reorder task {task.id}"
+                )
+
+        # Create a map for quick lookup
+        task_map = {str(task.id): task for task in tasks}
+
+        # Update manual_order based on the new order
+        now = datetime.now(timezone.utc)
+        for index, task_id in enumerate(task_ids):
+            task = task_map[task_id]
+            task.manual_order = index
+            task.updated_at = now
+            self.session.add(task)
+
+        # Commit all changes atomically
+        await self.session.commit()
+
+        # Refresh all tasks and return in order
+        ordered_tasks = []
+        for task_id in task_ids:
+            task = task_map[task_id]
+            await self.session.refresh(task)
+            ordered_tasks.append(task)
+
+        return ordered_tasks
 
     async def get_trash(
         self,
@@ -1032,9 +1134,10 @@ class TaskService:
         # Build main query with sorting and pagination
         main_query = select(Task).where(and_(*filters))
 
-        # Eager load tags
+        # Eager load tags and subtasks
         main_query = main_query.options(
-            selectinload(Task.task_tags).selectinload(TaskTag.tag)
+            selectinload(Task.task_tags).selectinload(TaskTag.tag),
+            selectinload(Task.subtasks)
         )
 
         # Sort by relevance (if search query) or by created_at

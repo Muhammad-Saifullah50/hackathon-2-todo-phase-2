@@ -64,6 +64,7 @@ export function DayTasksPanel({ date, tasks, onClose }: DayTasksPanelProps) {
       <CreateTaskDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
+        hideTrigger={true}
         defaultValues={{
           due_date: date.toISOString(),
         }}

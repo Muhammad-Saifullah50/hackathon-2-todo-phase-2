@@ -54,7 +54,7 @@ export default function Hero() {
             variants={fadeIn}
           >
             <Button size="lg" className="text-lg px-8 py-6" asChild>
-              <Link href="/signup">
+              <Link href="/sign-up">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>

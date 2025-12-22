@@ -36,12 +36,18 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { DueDatePicker } from "./DueDatePicker";
 import { TagPicker } from "./TagPicker";
+import { SubtaskList } from "./SubtaskList";
+import { RecurringDialog } from "./RecurringDialog";
+import { SaveTemplateDialog } from "./SaveTemplateDialog";
+import { useRecurrencePattern, useDeleteRecurrence } from "@/hooks/useRecurring";
+import { Repeat, X, FileText } from "lucide-react";
 
 // Form data type
 interface EditTaskFormData {
   title: string;
   description?: string;
   due_date: string | null;
+  notes?: string;
 }
 
 // Zod validation schema
@@ -57,6 +63,11 @@ const editTaskSchema = z.object({
     .trim()
     .optional(),
   due_date: z.string().nullable(),
+  notes: z
+    .string()
+    .max(500, "Notes must be 500 characters or less")
+    .trim()
+    .optional(),
 });
 
 interface EditTaskDialogProps {
@@ -82,6 +93,11 @@ export function EditTaskDialog({
   const [initialTagIds, setInitialTagIds] = useState<string[]>(
     task.tags?.map((tag) => tag.id) || []
   );
+  const [recurringDialogOpen, setRecurringDialogOpen] = useState(false);
+  const [saveTemplateDialogOpen, setSaveTemplateDialogOpen] = useState(false);
+
+  const { data: recurrencePattern } = useRecurrencePattern(task.id);
+  const { mutate: deleteRecurrence } = useDeleteRecurrence();
 
   const form = useForm<EditTaskFormData>({
     resolver: zodResolver(editTaskSchema),
@@ -89,6 +105,7 @@ export function EditTaskDialog({
       title: task.title,
       description: task.description || "",
       due_date: task.due_date || null,
+      notes: task.notes || "",
     },
   });
 
@@ -98,6 +115,7 @@ export function EditTaskDialog({
       title: task.title,
       description: task.description || "",
       due_date: task.due_date || null,
+      notes: task.notes || "",
     });
     setDueDate(task.due_date ? parseISO(task.due_date) : null);
     const tagIds = task.tags?.map((tag) => tag.id) || [];
@@ -115,7 +133,8 @@ export function EditTaskDialog({
     const hasFormChanges =
       data.title !== task.title ||
       (data.description || "") !== (task.description || "") ||
-      (data.due_date || null) !== (task.due_date || null);
+      (data.due_date || null) !== (task.due_date || null) ||
+      (data.notes || "") !== (task.notes || "");
 
     if (!hasFormChanges && !tagsChanged) {
       form.setError("root", {
@@ -138,6 +157,10 @@ export function EditTaskDialog({
             due_date:
               (data.due_date || null) !== (task.due_date || null)
                 ? data.due_date
+                : undefined,
+            notes:
+              (data.notes || "") !== (task.notes || "")
+                ? data.notes
                 : undefined,
           },
         },
@@ -262,6 +285,85 @@ export function EditTaskDialog({
               />
             </div>
 
+            {/* Subtasks Field */}
+            <div className="space-y-2">
+              <Label>Subtasks (Optional)</Label>
+              <SubtaskList
+                taskId={task.id}
+                subtasks={task.subtasks || []}
+              />
+            </div>
+
+            {/* Recurring Section */}
+            <div className="space-y-2">
+              <Label>Recurring (Optional)</Label>
+              {recurrencePattern ? (
+                <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <Repeat className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      Repeats {recurrencePattern.frequency}
+                      {recurrencePattern.interval > 1 && ` (every ${recurrencePattern.interval})`}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setRecurringDialogOpen(true)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteRecurrence(task.id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setRecurringDialogOpen(true)}
+                >
+                  <Repeat className="mr-2 h-4 w-4" />
+                  Make Recurring
+                </Button>
+              )}
+            </div>
+
+            {/* Notes Field */}
+            <FormField<EditTaskFormData>
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Add detailed notes..."
+                      className="min-h-[120px] resize-none"
+                      {...field}
+                      value={field.value ?? ""}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <div className="flex justify-between items-center">
+                    <FormMessage />
+                    <span className="text-xs text-muted-foreground">
+                      {(field.value || "").length}/500 characters
+                    </span>
+                  </div>
+                </FormItem>
+              )}
+            />
+
             {/* Root Error Message */}
             {form.formState.errors.root && (
               <p className="text-sm font-medium text-destructive">
@@ -270,22 +372,50 @@ export function EditTaskDialog({
             )}
 
             {/* Dialog Footer */}
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button
                 type="button"
-                variant="outline"
-                onClick={handleCancel}
+                variant="secondary"
+                onClick={() => setSaveTemplateDialogOpen(true)}
                 disabled={isPending}
+                className="sm:mr-auto"
               >
-                Cancel
+                <FileText className="mr-2 h-4 w-4" />
+                Save as Template
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         </Form>
+
+        {/* Recurring Dialog */}
+        <RecurringDialog
+          open={recurringDialogOpen}
+          onOpenChange={setRecurringDialogOpen}
+          taskId={task.id}
+          mode={recurrencePattern ? "edit" : "create"}
+        />
+
+        {/* Save Template Dialog */}
+        <SaveTemplateDialog
+          open={saveTemplateDialogOpen}
+          onOpenChange={setSaveTemplateDialogOpen}
+          taskId={task.id}
+          taskTitle={task.title}
+        />
       </DialogContent>
     </Dialog>
   );

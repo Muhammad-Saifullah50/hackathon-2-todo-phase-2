@@ -5,13 +5,32 @@
  * Client Component because it manages filter state and uses React Query.
  * Enhanced with Framer Motion animations for smooth list transitions.
  * Includes global search and quick filters for advanced task discovery.
+ * Supports drag-and-drop reordering with @dnd-kit.
  */
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { useTasks, useBulkToggle, useBulkDelete } from "@/hooks/useTasks";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useTasks, useBulkToggle, useBulkDelete, useReorderTasks } from "@/hooks/useTasks";
 import { useSearchInput } from "@/hooks/useSearch";
 import { TaskCard } from "./TaskCard";
+import { SortableTaskCard } from "./SortableTaskCard";
 import { TaskFilters } from "./TaskFilters";
 import { Pagination } from "./Pagination";
 import { BulkActions } from "./BulkActions";
@@ -50,6 +69,28 @@ export function TaskList() {
 
   // Check for reduced motion preference
   const prefersReducedMotion = useReducedMotion();
+
+  // Drag and drop state
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const { mutate: reorderTasks } = useReorderTasks();
+
+  // Configure drag sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Minimum distance before drag starts (desktop)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 300, // Long-press delay for mobile (300ms)
+        tolerance: 5, // Allow small movement during delay
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Build query params including search
   const queryParams = {
@@ -133,6 +174,54 @@ export function TaskList() {
     (debouncedValue ? 1 : 0) +
     (status !== "all" ? 1 : 0) +
     (activeQuickFilter ? 1 : 0);
+
+  // Determine if drag is disabled (when filters/sorting is active)
+  const isDragDisabled = useMemo(() => {
+    // Disable drag when filters or sorting (other than default) is applied
+    return (
+      activeFilterCount > 0 ||
+      sortBy !== "created_at" ||
+      sortOrder !== "desc"
+    );
+  }, [activeFilterCount, sortBy, sortOrder]);
+
+  // Get task IDs for sortable context
+  const taskIds = useMemo(() => tasks.map((t) => t.id), [tasks]);
+
+  // Find the active task for drag overlay
+  const activeTask = useMemo(
+    () => tasks.find((t) => t.id === activeId),
+    [tasks, activeId]
+  );
+
+  // Drag handlers
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveId(null);
+
+      if (over && active.id !== over.id) {
+        // Find indices
+        const oldIndex = tasks.findIndex((t) => t.id === active.id);
+        const newIndex = tasks.findIndex((t) => t.id === over.id);
+
+        if (oldIndex !== -1 && newIndex !== -1) {
+          // Create new ordered array
+          const reorderedTasks = [...tasks];
+          const [movedTask] = reorderedTasks.splice(oldIndex, 1);
+          reorderedTasks.splice(newIndex, 0, movedTask);
+
+          // Send reorder request with new order
+          reorderTasks(reorderedTasks.map((t) => t.id));
+        }
+      }
+    },
+    [tasks, reorderTasks]
+  );
 
   // Keyboard navigation handlers
   useEffect(() => {
@@ -432,53 +521,74 @@ export function TaskList() {
         )}
       </div>
 
-      {/* Task Grid/List with Animations */}
-      <LayoutGroup>
-        <motion.div
-          variants={prefersReducedMotion ? undefined : staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className={
-            layout === "grid"
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-              : "space-y-3"
-          }
-        >
-          <AnimatePresence mode="popLayout">
-            {tasks.map((task, index) => {
-              const isKeyboardSelected = index === selectedTaskIndex;
-              return (
-                <motion.div
-                  key={task.id}
-                  data-task-index={index}
-                  layout={!prefersReducedMotion}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, x: -100, transition: { duration: 0.3 } }}
-                  transition={{ duration: 0.2 }}
-                  className={`flex items-start gap-2 ${
-                    isKeyboardSelected
-                      ? "ring-2 ring-primary ring-offset-2 rounded-lg"
-                      : ""
-                  }`}
-                  onClick={() => setSelectedTaskIndex(index)}
-                >
-                  {/* Bulk Selection Checkbox */}
-                  <Checkbox
-                    checked={selectedTaskIds.has(task.id)}
-                    onCheckedChange={() => toggleTaskSelection(task.id)}
-                    className="mt-4"
-                    aria-label={`Select ${task.title}`}
-                  />
-                  <div className="flex-1">
-                    <TaskCard task={task} variant={layout} searchQuery={debouncedValue} />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
-      </LayoutGroup>
+      {/* Task Grid/List with Drag and Drop */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
+          <LayoutGroup>
+            <motion.div
+              variants={prefersReducedMotion ? undefined : staggerContainer}
+              initial="hidden"
+              animate="visible"
+              className={
+                layout === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  : "space-y-3"
+              }
+            >
+              <AnimatePresence mode="popLayout">
+                {tasks.map((task, index) => {
+                  const isKeyboardSelected = index === selectedTaskIndex;
+                  return (
+                    <motion.div
+                      key={task.id}
+                      data-task-index={index}
+                      layout={!prefersReducedMotion}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, x: -100, transition: { duration: 0.3 } }}
+                      transition={{ duration: 0.2 }}
+                      className="flex items-start gap-2"
+                      onClick={() => setSelectedTaskIndex(index)}
+                    >
+                      {/* Bulk Selection Checkbox */}
+                      <Checkbox
+                        checked={selectedTaskIds.has(task.id)}
+                        onCheckedChange={() => toggleTaskSelection(task.id)}
+                        className="mt-4"
+                        aria-label={`Select ${task.title}`}
+                      />
+                      <div className="flex-1">
+                        <SortableTaskCard
+                          task={task}
+                          variant={layout}
+                          searchQuery={debouncedValue}
+                          isDragDisabled={isDragDisabled}
+                          isSelected={isKeyboardSelected}
+                          onSelect={() => setSelectedTaskIndex(index)}
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          </LayoutGroup>
+        </SortableContext>
+
+        {/* Drag Overlay - shows a semi-transparent card following the cursor */}
+        <DragOverlay>
+          {activeTask && (
+            <div className="opacity-80 shadow-2xl">
+              <TaskCard task={activeTask} variant={layout} />
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
 
       {/* Pagination */}
       {pagination && pagination.total_pages > 1 && (

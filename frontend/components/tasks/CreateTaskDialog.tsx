@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Plus, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 import {
@@ -35,6 +35,7 @@ import { useAssignTags } from "@/hooks/useTags";
 import { createTaskSchema, type CreateTaskFormData } from "@/lib/schemas/task";
 import { DueDatePicker } from "./DueDatePicker";
 import { TagPicker } from "./TagPicker";
+import { TemplateDialog } from "./TemplateDialog";
 
 interface CreateTaskDialogProps {
   open?: boolean;
@@ -43,14 +44,22 @@ interface CreateTaskDialogProps {
     due_date?: string;
     priority?: "low" | "medium" | "high";
   };
+  hideTrigger?: boolean;
 }
 
-export function CreateTaskDialog({ open: controlledOpen, onOpenChange, defaultValues }: CreateTaskDialogProps = {}) {
+export function CreateTaskDialog({
+  open: controlledOpen,
+  onOpenChange,
+  defaultValues,
+  hideTrigger = false,
+  
+}: CreateTaskDialogProps = {}) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [dueDate, setDueDate] = useState<Date | null>(
     defaultValues?.due_date ? new Date(defaultValues.due_date) : null
   );
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const { toast } = useToast();
   const { mutate: createTask, isPending } = useCreateTask();
   const { mutateAsync: assignTags } = useAssignTags();
@@ -171,25 +180,39 @@ export function CreateTaskDialog({ open: controlledOpen, onOpenChange, defaultVa
 
   return (
     <>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button onClick={() => setOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Task
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Create new task (N)</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      {!hideTrigger && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => setOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Task
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Create new task (N)</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[500px] max-sm:h-full max-sm:w-full max-sm:max-w-full">
           <DialogHeader>
             <DialogTitle>Create New Task</DialogTitle>
           </DialogHeader>
+
+          <div className="mb-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => setTemplateDialogOpen(true)}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Use Template
+            </Button>
+          </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Title field */}
@@ -324,6 +347,14 @@ export function CreateTaskDialog({ open: controlledOpen, onOpenChange, defaultVa
           </form>
         </DialogContent>
       </Dialog>
+
+      <TemplateDialog
+        open={templateDialogOpen}
+        onOpenChange={setTemplateDialogOpen}
+        onTemplateApplied={() => {
+          setOpen(false);
+        }}
+      />
     </>
   );
 }

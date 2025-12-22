@@ -22,6 +22,7 @@ from src.schemas.task_schemas import (
     AnalyticsStatsResponse,
     CompletionTrendResponse,
     PriorityBreakdownResponse,
+    ReorderTasksRequest,
 )
 from src.services.task_service import TaskService
 
@@ -734,6 +735,87 @@ async def bulk_delete_tasks(
                 "error": {
                     "code": "INTERNAL_ERROR",
                     "message": "Failed to delete tasks. Please try again later.",
+                },
+            },
+        )
+
+
+@router.patch(
+    "/reorder",
+    status_code=status.HTTP_200_OK,
+    response_model=StandardizedResponse[BulkOperationResponse],
+)
+async def reorder_tasks(
+    request: ReorderTasksRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> StandardizedResponse[BulkOperationResponse]:
+    """Reorder tasks by updating their manual_order field.
+
+    Args:
+        request: Reorder request with ordered list of task IDs.
+        current_user: Authenticated user from JWT token.
+        session: Database session.
+
+    Returns:
+        StandardizedResponse with updated task count and task list.
+
+    Raises:
+        HTTPException: 400 for validation errors, 403 for permission errors, 500 for server errors.
+    """
+    try:
+        # Initialize service
+        service = TaskService(session)
+
+        # Convert UUIDs to strings
+        task_ids = [str(task_id) for task_id in request.task_ids]
+
+        # Reorder tasks
+        tasks = await service.reorder_tasks(task_ids=task_ids, user_id=current_user.id)
+
+        # Log successful reorder operation
+        logger.info(f"Reorder completed: user_id={current_user.id}, count={len(tasks)}")
+
+        # Return success response
+        return StandardizedResponse(
+            success=True,
+            message=f"Successfully reordered {len(tasks)} tasks",
+            data=BulkOperationResponse(
+                updated_count=len(tasks),
+                tasks=[TaskResponse.model_validate(task) for task in tasks],
+            ),
+        )
+
+    except PermissionError as e:
+        logger.warning(f"Permission denied in reorder: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "success": False,
+                "error": {"code": "PERMISSION_DENIED", "message": str(e)},
+            },
+        )
+
+    except ValueError as e:
+        error_message = str(e)
+        logger.warning(f"Validation error in reorder: {error_message}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "success": False,
+                "error": {"code": "VALIDATION_ERROR", "message": error_message},
+            },
+        )
+
+    except Exception as e:
+        logger.error(f"Failed reorder: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "success": False,
+                "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Failed to reorder tasks. Please try again later.",
                 },
             },
         )
