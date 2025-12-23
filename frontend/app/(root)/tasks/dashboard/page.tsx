@@ -5,7 +5,7 @@ import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
 
 export default function DashboardPage() {
   return (
-    <div className="container mx-auto space-y-6 p-6">
+    <div className="max-w-7xl mx-auto space-y-6 p-6 w-full">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>

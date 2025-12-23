@@ -12,6 +12,8 @@ import { Pagination } from "./Pagination";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
@@ -84,13 +86,19 @@ export function TrashView() {
   // Empty state
   if (tasks.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed p-12 text-center">
-        <Trash2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-        <p className="text-muted-foreground font-medium mb-1">Trash is empty</p>
-        <p className="text-sm text-muted-foreground">
-          Deleted tasks will appear here. You can restore them or delete them permanently.
-        </p>
-      </div>
+      <EmptyState
+        illustration={
+          <Image
+            src="/illustrations/empty-trash.svg"
+            alt="Trash is empty"
+            width={100}
+            height={100}
+            className="opacity-60"
+          />
+        }
+        heading="Trash is empty"
+        description="Deleted tasks will appear here. You can restore them or delete them permanently."
+      />
     );
   }
 

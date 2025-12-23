@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SettingsPage() {
   return (
-    <div className="container mx-auto py-6 px-4 max-w-6xl">
+    <div className="max-w-6xl mx-auto px-4 py-6 w-full">
       <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground">

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { authClient } from './auth-client';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 /**
  * Standard Axios client for API requests.

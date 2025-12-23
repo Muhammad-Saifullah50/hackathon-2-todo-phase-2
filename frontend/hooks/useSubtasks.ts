@@ -157,12 +157,13 @@ export const useCreateSubtask = (options?: UseCreateSubtaskMutationOptions) => {
       // Update the subtasks query cache
       queryClient.setQueryData<SubtaskListResponse>(
         ["subtasks", variables.taskId],
-        (old) => {
-          if (!old) return { 
-            subtasks: [newSubtask], 
-            total_count: 1, 
-            completed_count: 0, 
-            completion_percentage: 0 
+        (old: SubtaskListResponse | undefined) => {
+          if (!old) return {
+            subtasks: [newSubtask],
+            total_count: 1,
+            completed_count: 0,
+            pending_count: 1,
+            completion_percentage: 0
           };
           
           const updatedSubtasks = [...old.subtasks, newSubtask].sort(
@@ -182,8 +183,6 @@ export const useCreateSubtask = (options?: UseCreateSubtaskMutationOptions) => {
       // Invalidate and refetch to ensure data consistency
       queryClient.invalidateQueries({ queryKey: ["subtasks", variables.taskId] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      
-      options?.onSuccess?.(newSubtask, variables);
     },
     ...options,
   });
@@ -229,8 +228,6 @@ export const useUpdateSubtask = (options?: UseUpdateSubtaskMutationOptions) => {
         queryKey: ["subtasks", updatedSubtask.task_id] 
       });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      
-      options?.onSuccess?.(updatedSubtask, variables);
     },
     ...options,
   });
@@ -276,8 +273,6 @@ export const useToggleSubtask = (options?: UseToggleSubtaskMutationOptions) => {
         queryKey: ["subtasks", updatedSubtask.task_id] 
       });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      
-      options?.onSuccess?.(updatedSubtask, variables);
     },
     ...options,
   });
@@ -327,8 +322,6 @@ export const useDeleteSubtask = (options?: UseDeleteSubtaskMutationOptions) => {
           break;
         }
       }
-      
-      options?.onSuccess?.(_, subtaskId);
     },
     ...options,
   });
@@ -351,12 +344,10 @@ export const useReorderSubtasks = (options?: UseReorderSubtasksMutationOptions) 
       );
       
       // Invalidate and refetch to ensure data consistency
-      queryClient.invalidateQueries({ 
-        queryKey: ["subtasks", variables.taskId] 
+      queryClient.invalidateQueries({
+        queryKey: ["subtasks", variables.taskId]
       });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      
-      options?.onSuccess?.(result, variables);
     },
     ...options,
   });

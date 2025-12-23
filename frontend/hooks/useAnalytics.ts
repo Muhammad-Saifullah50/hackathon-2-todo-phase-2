@@ -58,7 +58,7 @@ export function useAnalyticsStats() {
   return useQuery<AnalyticsStatsResponse>({
     queryKey: ["analytics", "stats"],
     queryFn: async () => {
-      const response = await apiClient.get("/tasks/analytics/stats");
+      const response = await apiClient.get("/api/v1/tasks/analytics/stats");
       return response.data;
     },
     staleTime: 30000, // Cache for 30 seconds
@@ -78,7 +78,7 @@ export function useCompletionTrend(days: number = 7) {
     queryKey: ["analytics", "completion-trend", days],
     queryFn: async () => {
       const response = await apiClient.get(
-        `/tasks/analytics/completion-trend?days=${days}`
+        `/api/v1/tasks/analytics/completion-trend?days=${days}`
       );
       return response.data;
     },
@@ -97,7 +97,7 @@ export function usePriorityBreakdown() {
   return useQuery<PriorityBreakdownResponse>({
     queryKey: ["analytics", "priority-breakdown"],
     queryFn: async () => {
-      const response = await apiClient.get("/tasks/analytics/priority-breakdown");
+      const response = await apiClient.get("/api/v1/tasks/analytics/priority-breakdown");
       return response.data;
     },
     staleTime: 30000, // Cache for 30 seconds

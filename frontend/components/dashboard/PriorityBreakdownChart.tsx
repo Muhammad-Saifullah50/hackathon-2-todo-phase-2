@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { usePriorityBreakdown } from "@/hooks/useAnalytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import Image from "next/image";
 
 const COLORS = {
   low: "hsl(var(--chart-1))",
@@ -68,27 +69,13 @@ export function PriorityBreakdownChart() {
         </CardHeader>
         <CardContent>
           <div className="flex h-[300px] flex-col items-center justify-center space-y-4">
-            <div className="rounded-full bg-muted p-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="h-8 w-8 text-muted-foreground"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z"
-                />
-              </svg>
-            </div>
+            <Image
+              src="/illustrations/no-data.svg"
+              alt="No data available"
+              width={80}
+              height={80}
+              className="opacity-50"
+            />
             <div className="text-center">
               <p className="text-sm font-medium">No tasks yet</p>
               <p className="text-xs text-muted-foreground">
@@ -117,7 +104,11 @@ export function PriorityBreakdownChart() {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percentage }) => `${name}: ${percentage.toFixed(1)}%`}
+              label={(props) => {
+                const { name, payload } = props as { name: string; payload: { percentage: number } };
+                const percentage = payload?.percentage ?? 0;
+                return `${name}: ${percentage.toFixed(1)}%`;
+              }}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"

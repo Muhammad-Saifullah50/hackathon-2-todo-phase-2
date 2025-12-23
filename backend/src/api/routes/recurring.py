@@ -5,7 +5,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import get_current_user
 from src.db.session import get_db
@@ -26,7 +26,7 @@ router = APIRouter(prefix="/tasks", tags=["recurring"])
 @router.get("/{task_id}/recurrence", response_model=RecurrencePatternResponse)
 async def get_recurrence_pattern(
     task_id: UUID,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> RecurrencePatternResponse:
     """Get recurrence pattern for a task.
@@ -44,7 +44,7 @@ async def get_recurrence_pattern(
     """
     try:
         # Verify task exists and belongs to user
-        task = db.get(Task, task_id)
+        task = await db.get(Task, task_id)
         if not task:
             logger.warning(f"Task not found: task_id={task_id}, user_id={current_user.id}")
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
@@ -54,7 +54,7 @@ async def get_recurrence_pattern(
 
         # Get pattern
         service = RecurringService(db)
-        pattern = service.get_recurrence_pattern(task_id)
+        pattern = await service.get_recurrence_pattern(task_id)
 
         if not pattern:
             logger.info(f"No recurrence pattern found: task_id={task_id}")
@@ -77,7 +77,7 @@ async def get_recurrence_pattern(
 async def create_recurrence_pattern(
     task_id: UUID,
     pattern_data: RecurrencePatternCreate,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> RecurrencePatternResponse:
     """Create a recurrence pattern for a task.
@@ -95,7 +95,7 @@ async def create_recurrence_pattern(
         HTTPException: If task not found, not owned by user, or validation fails
     """
     # Verify task exists and belongs to user
-    task = db.get(Task, task_id)
+    task = await db.get(Task, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     if task.user_id != current_user.id:
@@ -104,7 +104,7 @@ async def create_recurrence_pattern(
     # Create pattern
     service = RecurringService(db)
     try:
-        pattern = service.create_recurrence_pattern(
+        pattern = await service.create_recurrence_pattern(
             task_id=task_id,
             pattern_data=pattern_data,
             start_date=task.due_date
@@ -119,7 +119,7 @@ async def create_recurrence_pattern(
 async def update_recurrence_pattern(
     task_id: UUID,
     pattern_data: RecurrencePatternUpdate,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> RecurrencePatternResponse:
     """Update a recurrence pattern for a task.
@@ -137,7 +137,7 @@ async def update_recurrence_pattern(
         HTTPException: If task/pattern not found, not owned by user, or validation fails
     """
     # Verify task exists and belongs to user
-    task = db.get(Task, task_id)
+    task = await db.get(Task, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     if task.user_id != current_user.id:
@@ -146,7 +146,7 @@ async def update_recurrence_pattern(
     # Update pattern
     service = RecurringService(db)
     try:
-        pattern = service.update_recurrence_pattern(task_id, pattern_data)
+        pattern = await service.update_recurrence_pattern(task_id, pattern_data)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -156,7 +156,7 @@ async def update_recurrence_pattern(
 @router.delete("/{task_id}/recurrence", status_code=204)
 async def delete_recurrence_pattern(
     task_id: UUID,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> None:
     """Delete a recurrence pattern for a task (stops recurrence).
@@ -170,7 +170,7 @@ async def delete_recurrence_pattern(
         HTTPException: If task not found, not owned by user, or no pattern exists
     """
     # Verify task exists and belongs to user
-    task = db.get(Task, task_id)
+    task = await db.get(Task, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     if task.user_id != current_user.id:
@@ -178,7 +178,7 @@ async def delete_recurrence_pattern(
 
     # Delete pattern
     service = RecurringService(db)
-    deleted = service.delete_recurrence_pattern(task_id)
+    deleted = await service.delete_recurrence_pattern(task_id)
 
     if not deleted:
         raise HTTPException(status_code=404, detail="No recurrence pattern found for this task")
@@ -187,7 +187,7 @@ async def delete_recurrence_pattern(
 @router.get("/{task_id}/recurrence/preview", response_model=RecurrencePreviewResponse)
 async def preview_recurrence_occurrences(
     task_id: UUID,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     count: Annotated[int, Query(ge=1, le=20)] = 5,
 ) -> RecurrencePreviewResponse:
@@ -206,7 +206,7 @@ async def preview_recurrence_occurrences(
         HTTPException: If task/pattern not found or not owned by user
     """
     # Verify task exists and belongs to user
-    task = db.get(Task, task_id)
+    task = await db.get(Task, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     if task.user_id != current_user.id:
@@ -215,7 +215,7 @@ async def preview_recurrence_occurrences(
     # Get preview
     service = RecurringService(db)
     try:
-        preview = service.preview_occurrences(task_id, count)
+        preview = await service.preview_occurrences(task_id, count)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 

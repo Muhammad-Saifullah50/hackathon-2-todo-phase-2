@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 
 interface SubtaskTemplateItem {
   description: string;
@@ -50,43 +51,23 @@ interface SaveTaskAsTemplateData {
   include_tags?: boolean;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem("token");
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...options.headers,
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: "An error occurred" }));
-    throw new Error(error.detail || "Request failed");
-  }
-
-  if (response.status === 204) {
-    return null;
-  }
-
-  return response.json();
-}
-
 export function useTemplates(page = 1, pageSize = 50) {
   return useQuery<TemplateListResponse>({
     queryKey: ["templates", page, pageSize],
-    queryFn: () =>
-      fetchWithAuth(`${API_URL}/api/v1/templates?page=${page}&page_size=${pageSize}`),
+    queryFn: async () => {
+      const response = await api.get(`/api/v1/templates?page=${page}&page_size=${pageSize}`);
+      return response.data;
+    },
   });
 }
 
 export function useTemplate(templateId: string) {
   return useQuery<Template>({
     queryKey: ["templates", templateId],
-    queryFn: () => fetchWithAuth(`${API_URL}/api/v1/templates/${templateId}`),
+    queryFn: async () => {
+      const response = await api.get(`/api/v1/templates/${templateId}`);
+      return response.data;
+    },
     enabled: !!templateId,
   });
 }
@@ -96,11 +77,10 @@ export function useCreateTemplate() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (data: CreateTemplateData) =>
-      fetchWithAuth(`${API_URL}/api/v1/templates`, {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
+    mutationFn: async (data: CreateTemplateData) => {
+      const response = await api.post(`/api/v1/templates`, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       toast({
@@ -123,11 +103,10 @@ export function useUpdateTemplate() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ templateId, data }: { templateId: string; data: UpdateTemplateData }) =>
-      fetchWithAuth(`${API_URL}/api/v1/templates/${templateId}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      }),
+    mutationFn: async ({ templateId, data }: { templateId: string; data: UpdateTemplateData }) => {
+      const response = await api.patch(`/api/v1/templates/${templateId}`, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       toast({
@@ -150,10 +129,10 @@ export function useDeleteTemplate() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (templateId: string) =>
-      fetchWithAuth(`${API_URL}/api/v1/templates/${templateId}`, {
-        method: "DELETE",
-      }),
+    mutationFn: async (templateId: string) => {
+      const response = await api.delete(`/api/v1/templates/${templateId}`);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       toast({
@@ -176,11 +155,12 @@ export function useApplyTemplate() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ templateId, dueDate }: { templateId: string; dueDate?: string }) =>
-      fetchWithAuth(`${API_URL}/api/v1/templates/${templateId}/apply`, {
-        method: "POST",
-        body: JSON.stringify({ due_date: dueDate }),
-      }),
+    mutationFn: async ({ templateId, dueDate }: { templateId: string; dueDate?: string }) => {
+      const response = await api.post(`/api/v1/templates/${templateId}/apply`, {
+        due_date: dueDate,
+      });
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast({
@@ -203,18 +183,16 @@ export function useSaveTaskAsTemplate() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (data: SaveTaskAsTemplateData) => {
+    mutationFn: async (data: SaveTaskAsTemplateData) => {
       const params = new URLSearchParams({
         template_name: data.template_name,
         include_subtasks: String(data.include_subtasks ?? true),
         include_tags: String(data.include_tags ?? true),
       });
-      return fetchWithAuth(
-        `${API_URL}/api/v1/templates/tasks/${data.task_id}/save-as-template?${params}`,
-        {
-          method: "POST",
-        }
+      const response = await api.post(
+        `/api/v1/templates/tasks/${data.task_id}/save-as-template?${params}`
       );
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });

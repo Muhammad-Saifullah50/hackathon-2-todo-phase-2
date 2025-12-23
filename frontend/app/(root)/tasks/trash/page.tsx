@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function TrashPage() {
   return (
-    <div className="container max-w-7xl mx-auto py-6 px-4">
+    <div className="max-w-7xl mx-auto py-6 px-4 w-full">
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">

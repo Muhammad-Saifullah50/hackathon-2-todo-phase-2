@@ -9,7 +9,7 @@ import { TaskList } from "@/components/tasks/TaskList";
 
 export default function TasksPage() {
   return (
-    <div className="container max-w-7xl mx-auto px-4 pt-6">
+    <div className="max-w-7xl mx-auto px-4 pt-6 w-full">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Tasks</h1>
@@ -17,7 +17,9 @@ export default function TasksPage() {
             Manage your tasks and stay organized
           </p>
         </div>
-        <CreateTaskDialog />
+        <div data-tour="create-task-button">
+          <CreateTaskDialog />
+        </div>
       </div>
 
       {/* Task List with filters, sorting, and pagination */}

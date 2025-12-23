@@ -162,11 +162,12 @@ export function CreateTaskDialog({
           setDueDate(null);
           setSelectedTagIds([]);
         },
-        onError: (error: { response?: { data?: { error?: { message?: string } } } }) => {
+        onError: (error: Error) => {
+          const apiError = error as Error & { response?: { data?: { error?: { message?: string } } } };
           toast({
             title: "Error",
             description:
-              error?.response?.data?.error?.message ||
+              apiError?.response?.data?.error?.message ||
               "Failed to create task. Please try again.",
             variant: "destructive",
           });

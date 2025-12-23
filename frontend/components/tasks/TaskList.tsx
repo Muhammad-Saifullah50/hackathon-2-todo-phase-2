@@ -40,8 +40,10 @@ import { SearchBar } from "./SearchBar";
 import { QuickFilters, FilterSummary } from "./QuickFilters";
 import { TaskStatus } from "@/lib/types/task";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LayoutGrid, LayoutList, SearchX, FileQuestion } from "lucide-react";
+import { LayoutGrid, LayoutList } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TaskListSkeleton } from "./TaskListSkeleton";
 import { staggerContainer, useReducedMotion } from "@/lib/animations";
@@ -110,7 +112,7 @@ export function TaskList() {
   // Fetch tasks with React Query
   const { data, isLoading, isError, error } = useTasks(queryParams);
 
-  const tasks = data?.data?.tasks || [];
+  const tasks = useMemo(() => data?.data?.tasks || [], [data?.data?.tasks]);
   const metadata = data?.data?.metadata;
   const pagination = data?.data?.pagination;
 
@@ -378,40 +380,46 @@ export function TaskList() {
         </div>
 
         {/* Enhanced Empty State */}
-        <div className="rounded-lg border border-dashed p-12 text-center">
-          {hasSearchOrFilter ? (
-            // No results from search/filter
-            <div className="flex flex-col items-center gap-4">
-              <div className="rounded-full bg-muted p-4">
-                <SearchX className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">No tasks match your filters</h3>
-                <p className="text-sm text-muted-foreground max-w-md">
-                  {debouncedValue
-                    ? `No results found for "${debouncedValue}"`
-                    : "Try adjusting your filters to find what you're looking for."}
-                </p>
-              </div>
-              <Button variant="outline" onClick={handleClearAllFilters}>
-                Clear all filters
-              </Button>
-            </div>
-          ) : (
-            // No tasks at all
-            <div className="flex flex-col items-center gap-4">
-              <div className="rounded-full bg-muted p-4">
-                <FileQuestion className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">No tasks yet</h3>
-                <p className="text-sm text-muted-foreground">
-                  Create your first task to get started!
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+        {hasSearchOrFilter ? (
+          // No results from search/filter
+          <EmptyState
+            illustration={
+              <Image
+                src="/illustrations/no-results.svg"
+                alt="No results found"
+                width={100}
+                height={100}
+                className="opacity-60"
+              />
+            }
+            heading="No tasks match your filters"
+            description={
+              debouncedValue
+                ? `No results found for "${debouncedValue}"`
+                : "Try adjusting your filters to find what you're looking for."
+            }
+            action={{
+              label: "Clear all filters",
+              onClick: handleClearAllFilters,
+              variant: "outline",
+            }}
+          />
+        ) : (
+          // No tasks at all
+          <EmptyState
+            illustration={
+              <Image
+                src="/illustrations/no-tasks.svg"
+                alt="No tasks yet"
+                width={100}
+                height={100}
+                className="opacity-60"
+              />
+            }
+            heading="No tasks yet"
+            description="Create your first task to get started!"
+          />
+        )}
       </div>
     );
   }
@@ -426,20 +434,24 @@ export function TaskList() {
 
       {/* Search Bar */}
       <div className="space-y-4">
-        <SearchBar
-          value={inputValue}
-          onChange={setInputValue}
-          onClear={clearSearch}
-          isSearching={isDebouncing}
-          placeholder="Search tasks by title, description, or notes..."
-        />
+        <div data-tour="search-bar">
+          <SearchBar
+            value={inputValue}
+            onChange={setInputValue}
+            onClear={clearSearch}
+            isSearching={isDebouncing}
+            placeholder="Search tasks by title, description, or notes..."
+          />
+        </div>
 
         {/* Quick Filters */}
         <div className="flex flex-wrap items-center gap-4">
-          <QuickFilters
-            activeFilter={activeQuickFilter}
-            onFilterChange={handleQuickFilterChange}
-          />
+          <div data-tour="quick-filters">
+            <QuickFilters
+              activeFilter={activeQuickFilter}
+              onFilterChange={handleQuickFilterChange}
+            />
+          </div>
 
           <FilterSummary
             activeFilterCount={activeFilterCount}
@@ -450,26 +462,28 @@ export function TaskList() {
 
       {/* Filters and Layout Toggle */}
       <div className="flex items-center justify-between gap-4">
-        <TaskFilters
-          status={status}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          onStatusChange={(value) => {
-            setStatus(value);
-            setPage(1);
-          }}
-          onSortByChange={(value) => {
-            setSortBy(value);
-            setPage(1);
-          }}
-          onSortOrderChange={(value) => {
-            setSortOrder(value);
-            setPage(1);
-          }}
-        />
+        <div data-tour="task-filters">
+          <TaskFilters
+            status={status}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onStatusChange={(value) => {
+              setStatus(value);
+              setPage(1);
+            }}
+            onSortByChange={(value) => {
+              setSortBy(value);
+              setPage(1);
+            }}
+            onSortOrderChange={(value) => {
+              setSortOrder(value);
+              setPage(1);
+            }}
+          />
+        </div>
 
         {/* Layout Toggle */}
-        <div className="flex gap-1">
+        <div className="flex gap-1" data-tour="view-toggle">
           <Button
             variant={layout === "list" ? "default" : "outline"}
             size="icon"

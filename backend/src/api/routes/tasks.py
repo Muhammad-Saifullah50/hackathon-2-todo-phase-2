@@ -1430,3 +1430,107 @@ async def get_priority_breakdown(
                 },
             },
         )
+
+
+@router.post(
+    "/{task_id}/tags",
+    status_code=status.HTTP_200_OK,
+    response_model=StandardizedResponse[None],
+)
+async def add_tags_to_task(
+    task_id: UUID,
+    tag_data: dict,  # Expecting {"tag_ids": [str, str, ...]}
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> StandardizedResponse[None]:
+    """Add tags to a task.
+
+    Args:
+        task_id: UUID of the task.
+        tag_data: Dict containing tag_ids list.
+        current_user: Authenticated user.
+        session: Database session.
+
+    Returns:
+        StandardizedResponse with success message.
+    """
+    try:
+        from src.services.tag_service import TagService
+
+        service = TagService(session)
+        tag_ids = tag_data.get("tag_ids", [])
+
+        await service.add_tags_to_task(str(task_id), tag_ids, current_user.id)
+
+        logger.info(f"Tags added to task: task_id={task_id}, user_id={current_user.id}")
+
+        return StandardizedResponse(
+            success=True,
+            message="Tags added to task successfully",
+            data=None,
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to add tags to task: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "success": False,
+                "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Failed to add tags. Please try again later.",
+                },
+            },
+        )
+
+
+@router.delete(
+    "/{task_id}/tags",
+    status_code=status.HTTP_200_OK,
+    response_model=StandardizedResponse[None],
+)
+async def remove_tags_from_task(
+    task_id: UUID,
+    tag_data: dict,  # Expecting {"tag_ids": [str, str, ...]}
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> StandardizedResponse[None]:
+    """Remove tags from a task.
+
+    Args:
+        task_id: UUID of the task.
+        tag_data: Dict containing tag_ids list.
+        current_user: Authenticated user.
+        session: Database session.
+
+    Returns:
+        StandardizedResponse with success message.
+    """
+    try:
+        from src.services.tag_service import TagService
+
+        service = TagService(session)
+        tag_ids = tag_data.get("tag_ids", [])
+
+        await service.remove_tags_from_task(str(task_id), tag_ids, current_user.id)
+
+        logger.info(f"Tags removed from task: task_id={task_id}, user_id={current_user.id}")
+
+        return StandardizedResponse(
+            success=True,
+            message="Tags removed from task successfully",
+            data=None,
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to remove tags from task: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "success": False,
+                "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Failed to remove tags. Please try again later.",
+                },
+            },
+        )

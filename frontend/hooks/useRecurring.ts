@@ -44,7 +44,7 @@ export function useRecurrencePattern(taskId: string | undefined) {
   return useQuery<RecurrencePattern>({
     queryKey: ["recurrence", taskId],
     queryFn: async () => {
-      const response = await api.get(`/tasks/${taskId}/recurrence`);
+      const response = await api.get(`/api/v1/tasks/${taskId}/recurrence`);
       return response.data;
     },
     enabled: !!taskId,
@@ -60,7 +60,7 @@ export function useRecurrencePreview(taskId: string | undefined, count: number =
     queryKey: ["recurrence-preview", taskId, count],
     queryFn: async () => {
       const response = await api.get(
-        `/tasks/${taskId}/recurrence/preview?count=${count}`
+        `/api/v1/tasks/${taskId}/recurrence/preview?count=${count}`
       );
       return response.data;
     },
@@ -82,7 +82,7 @@ export function useCreateRecurrence() {
       taskId: string;
       data: RecurrencePatternCreate;
     }) => {
-      const response = await api.post(`/tasks/${taskId}/recurrence`, data);
+      const response = await api.post(`/api/v1/tasks/${taskId}/recurrence`, data);
       return response.data;
     },
     onSuccess: (_, { taskId }) => {
@@ -106,7 +106,7 @@ export function useUpdateRecurrence() {
       taskId: string;
       data: RecurrencePatternUpdate;
     }) => {
-      const response = await api.patch(`/tasks/${taskId}/recurrence`, data);
+      const response = await api.patch(`/api/v1/tasks/${taskId}/recurrence`, data);
       return response.data;
     },
     onSuccess: (_, { taskId }) => {
@@ -124,7 +124,7 @@ export function useDeleteRecurrence() {
 
   return useMutation({
     mutationFn: async (taskId: string) => {
-      await api.delete(`/tasks/${taskId}/recurrence`);
+      await api.delete(`/api/v1/tasks/${taskId}/recurrence`);
     },
     onSuccess: (_, taskId) => {
       queryClient.invalidateQueries({ queryKey: ["recurrence", taskId] });

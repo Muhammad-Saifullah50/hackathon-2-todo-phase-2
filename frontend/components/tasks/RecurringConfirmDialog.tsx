@@ -67,8 +67,7 @@ export function RecurringConfirmDialog({
               onConfirm("all");
               onOpenChange(false);
             }}
-            className="w-full"
-            variant={isDelete ? "destructive" : "default"}
+            className={`w-full ${isDelete ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}`}
           >
             {isDelete
               ? "Stop all recurrences (delete pattern)"

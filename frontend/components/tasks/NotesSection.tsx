@@ -45,7 +45,7 @@ export function NotesSection({
 
     // Lists: - item or * item
     html = html.replace(/^[\-\*]\s+(.+)$/gm, "<li>$1</li>");
-    html = html.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>");
+    html = html.replace(/(<li>[\s\S]*?<\/li>)/, "<ul>$1</ul>");
 
     return html;
   };

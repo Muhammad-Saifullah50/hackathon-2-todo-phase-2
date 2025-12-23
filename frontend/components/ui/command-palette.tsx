@@ -45,7 +45,7 @@ export function CommandPalette({
   const router = useRouter();
   const [search, setSearch] = React.useState("");
 
-  const actions: CommandAction[] = [
+  const actions: CommandAction[] = React.useMemo(() => [
     {
       id: "new-task",
       label: "Create New Task",
@@ -180,7 +180,7 @@ export function CommandPalette({
         onOpenChange(false);
       },
     },
-  ];
+  ], [router, onNewTask, onApplyFilter, onOpenChange]);
 
   const filteredActions = React.useMemo(() => {
     if (!search) return actions;
@@ -191,7 +191,7 @@ export function CommandPalette({
         action.label.toLowerCase().includes(lowerSearch) ||
         action.keywords?.some((keyword) => keyword.includes(lowerSearch))
     );
-  }, [search]);
+  }, [search, actions]);
 
   const groupedActions = React.useMemo(() => {
     const groups: Record<string, CommandAction[]> = {};

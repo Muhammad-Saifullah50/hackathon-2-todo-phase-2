@@ -16,16 +16,19 @@ export function SubtaskProgress({ subtasks }: SubtaskProgressProps) {
   const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   // Determine badge variant based on completion percentage
-  let variant: "default" | "secondary" | "destructive" | "outline" | "success" = "secondary";
+  let variant: "default" | "secondary" | "destructive" | "outline" = "secondary";
+  let badgeClassName = "text-xs";
+
   if (percentage === 100) {
-    variant = "success"; // Custom variant for completed tasks - will need to be defined in shadcn config
+    variant = "default";
+    badgeClassName = "text-xs bg-green-500 hover:bg-green-600"; // Green for completed
   } else if (percentage > 0) {
     variant = "default"; // Default color for in-progress
   }
 
   return (
     <div className="flex items-center gap-2 text-sm">
-      <Badge variant={variant} className="text-xs">
+      <Badge variant={variant} className={badgeClassName}>
         {completedCount}/{totalCount} ({percentage}%)
       </Badge>
       <div className="h-2 flex-1 rounded-full overflow-hidden bg-muted">

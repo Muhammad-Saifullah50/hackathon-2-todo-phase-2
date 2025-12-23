@@ -231,6 +231,7 @@ export function EditTaskDialog({
                     <Input
                       placeholder="Enter task title"
                       {...field}
+                      value={field.value ?? ""}
                       disabled={isPending}
                     />
                   </FormControl>

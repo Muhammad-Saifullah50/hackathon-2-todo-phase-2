@@ -362,5 +362,8 @@ class SubtaskService:
             task = task_result.scalar_one_or_none()
 
             if task and task.status != TaskStatus.COMPLETED:
+                from datetime import datetime, timezone
+
                 task.status = TaskStatus.COMPLETED
+                task.completed_at = datetime.now(timezone.utc)
                 await self.session.commit()

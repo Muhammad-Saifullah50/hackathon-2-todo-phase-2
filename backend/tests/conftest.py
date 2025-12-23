@@ -10,8 +10,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlmodel import SQLModel
 from sqlmodel.pool import StaticPool
 
+from src.auth import get_current_user
 from src.db.session import get_db
 from src.main import app
+from src.models.user import User
 
 # Import models to ensure they are registered with SQLModel.metadata
 from src.models import *  # noqa
@@ -73,4 +75,32 @@ async def client(test_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def test_user(test_session: AsyncSession) -> User:
+    """Create a test user in the database."""
+    import uuid
+
+    # Generate unique email for each test to avoid conflicts
+    unique_id = str(uuid.uuid4())[:8]
+    user = User(
+        id=f"test-user-{unique_id}", email=f"test-{unique_id}@example.com", name="Test User"
+    )
+    test_session.add(user)
+    await test_session.commit()
+    await test_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+async def auth_client(client: AsyncClient, test_user: User) -> AsyncClient:
+    """Create an authenticated client by mocking the get_current_user dependency."""
+
+    async def mock_get_current_user() -> User:
+        return test_user
+
+    app.dependency_overrides[get_current_user] = mock_get_current_user
+    yield client
     app.dependency_overrides.clear()

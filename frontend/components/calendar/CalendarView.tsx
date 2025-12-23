@@ -101,8 +101,8 @@ export function CalendarView() {
 
     updateTask(
       {
-        id: taskId,
-        updates: {
+        taskId: taskId,
+        data: {
           due_date: newDueDate,
         },
       },
