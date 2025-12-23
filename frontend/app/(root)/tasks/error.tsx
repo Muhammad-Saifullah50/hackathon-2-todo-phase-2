@@ -1,4 +1,3 @@
-// app/tasks/error.tsx (automatically a Client Component)
 "use client";
 
 import { useEffect } from "react";

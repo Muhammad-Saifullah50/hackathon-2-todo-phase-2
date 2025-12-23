@@ -45,7 +45,7 @@ export default function Hero() {
             className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
             variants={fadeIn}
           >
-            Stay organized, hit deadlines, and achieve more with TaskFlow&apos;s intuitive interface and powerful features.
+            Stay organized, hit deadlines, and achieve more with Todoly&apos;s intuitive interface and powerful features.
           </motion.p>
 
           {/* CTA Buttons */}

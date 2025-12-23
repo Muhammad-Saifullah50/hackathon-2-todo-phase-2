@@ -1,7 +1,7 @@
 [project]
-name = "todo-backend"
+name = "todoly-backend"
 version = "1.0.0"
-description = "FastAPI backend for Todo application"
+description = "FastAPI backend for Todoly application"
 readme = "README.cli.md"
 requires-python = ">=3.13"
 authors = [

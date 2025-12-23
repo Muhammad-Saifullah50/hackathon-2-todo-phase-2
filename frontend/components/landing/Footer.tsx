@@ -46,7 +46,7 @@ export function Footer() {
       },
       {
         name: "Email",
-        href: "mailto:hello@taskapp.com",
+        href: "mailto:hello@todoly.com",
         icon: Mail,
       },
     ],
@@ -62,7 +62,7 @@ export function Footer() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                 <span className="text-white font-bold text-lg">T</span>
               </div>
-              <span className="text-xl font-bold">TaskApp</span>
+              <span className="text-xl font-bold">Todoly</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Beautiful task management for individuals and teams. Stay organized, boost
@@ -143,7 +143,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} TaskApp. All rights reserved.
+            © {currentYear} Todoly. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground">
             Built with ❤️ using Next.js & FastAPI

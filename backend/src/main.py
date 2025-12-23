@@ -1,4 +1,4 @@
-"""Main entry point for the Todo API application."""
+"""Main entry point for the Todoly API application."""
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -33,9 +33,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 
 app = FastAPI(
-    title="Todo API",
+    title="Todoly API",
     version="1.0.0",
-    description="FastAPI backend for Todo application",
+    description="FastAPI backend for Todoly application",
     lifespan=lifespan,
 )
 
