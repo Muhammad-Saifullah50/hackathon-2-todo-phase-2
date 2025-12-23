@@ -1,11 +1,31 @@
+"use client";
+
 import { SidebarClient } from "./SidebarClient";
-import { getSession } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
 
-export async function Sidebar() {
-  const session = await getSession();
+export function Sidebar() {
+  const [session, setSession] = useState<{ user: unknown } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Don't render sidebar if user is not authenticated
-  if (!session) {
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const { data } = await authClient.getSession();
+        setSession(data);
+      } catch (error) {
+        console.error("Error fetching session:", error);
+        setSession(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSession();
+  }, []);
+
+  // Don't render sidebar if user is not authenticated or still loading
+  if (isLoading || !session) {
     return null;
   }
 

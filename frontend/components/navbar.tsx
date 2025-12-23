@@ -1,9 +1,29 @@
-import Link from "next/link";
-import { getSession } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
+"use client";
 
-export default async function Navbar() {
-  const session = await getSession();
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
+
+export default function Navbar() {
+  const [session, setSession] = useState<{ user: unknown } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const { data } = await authClient.getSession();
+        setSession(data);
+      } catch (error) {
+        console.error("Error fetching session:", error);
+        setSession(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSession();
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 flex items-center justify-between">
@@ -11,7 +31,7 @@ export default async function Navbar() {
         Todoly
       </Link>
       <div className="flex items-center gap-4">
-        {!session && (
+        {!isLoading && !session && (
           <>
             <Button variant="ghost" asChild>
               <Link href="/sign-in">Login</Link>
