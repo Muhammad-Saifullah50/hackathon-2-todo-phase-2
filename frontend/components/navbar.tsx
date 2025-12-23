@@ -4,10 +4,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [session, setSession] = useState<{ user: unknown } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+
+  const isLandingPage = pathname === "/";
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -33,6 +37,11 @@ export default function Navbar() {
       <div className="flex items-center gap-4">
         {!isLoading && !session && (
           <>
+            {isLandingPage && (
+              <Button variant="outline" asChild>
+                <Link href="/tasks/dashboard">Dashboard</Link>
+              </Button>
+            )}
             <Button variant="ghost" asChild>
               <Link href="/sign-in">Login</Link>
             </Button>
