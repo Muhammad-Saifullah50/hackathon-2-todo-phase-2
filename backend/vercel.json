@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "src/main.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
     }
   ],
   "routes": [
@@ -12,5 +15,5 @@
       "dest": "src/main.py"
     }
   ],
-  "installCommand": "pip install --no-cache-dir -r requirements.txt"
+  "installCommand": "pip install --no-cache-dir --no-index --find-links=wheels -r requirements.txt"
 }
