@@ -1,9 +1,13 @@
-
-
+import type { Metadata } from "next";
 import { TrashView } from "@/components/tasks/TrashView";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Trash",
+  description: "Restore or permanently delete your trashed tasks",
+};
 
 export default function TrashPage() {
   return (

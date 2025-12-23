@@ -4,8 +4,14 @@
  * Server Component by default - only imports Client Components.
  */
 
+import type { Metadata } from "next";
 import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
 import { TaskList } from "@/components/tasks/TaskList";
+
+export const metadata: Metadata = {
+  title: "My Tasks",
+  description: "Manage your tasks and stay organized with Todoly's powerful task management interface",
+};
 
 export default function TasksPage() {
   return (

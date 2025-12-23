@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { CalendarView } from "@/components/calendar/CalendarView";
+
+export const metadata: Metadata = {
+  title: "Calendar",
+  description: "View and manage your tasks by due date in calendar view",
+};
 
 export default function CalendarPage() {
   return (

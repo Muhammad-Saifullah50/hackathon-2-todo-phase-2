@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { CompletionTrendChart } from "@/components/dashboard/CompletionTrendChart";
 import { PriorityBreakdownChart } from "@/components/dashboard/PriorityBreakdownChart";
 import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Overview of your tasks and productivity metrics",
+};
 
 export default function DashboardPage() {
   return (

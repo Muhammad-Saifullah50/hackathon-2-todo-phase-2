@@ -11,9 +11,9 @@ import type { Metadata } from "next";
  * SEO Metadata for landing page
  */
 export const metadata: Metadata = {
-  title: "TaskApp - Beautiful Task Management for Everyone",
+  title: "Beautiful Task Management for Everyone",
   description:
-    "Transform your productivity with our beautiful, intuitive task manager. Features include due dates, tags, subtasks, recurring tasks, kanban boards, and more. Free forever plan available.",
+    "Transform your productivity with Todoly's beautiful, intuitive task manager. Features include due dates, tags, subtasks, recurring tasks, kanban boards, and more. Free forever plan available.",
   keywords: [
     "task management",
     "todo list",
@@ -22,22 +22,20 @@ export const metadata: Metadata = {
     "project management",
     "task organizer",
     "free task manager",
+    "todoly",
   ],
-  authors: [{ name: "TaskApp Team" }],
-  creator: "TaskApp",
-  publisher: "TaskApp",
   openGraph: {
-    title: "TaskApp - Beautiful Task Management for Everyone",
+    title: "Todoly - Beautiful Task Management for Everyone",
     description:
-      "Transform your productivity with our beautiful, intuitive task manager. Free forever plan available.",
-    url: "https://taskapp.com",
-    siteName: "TaskApp",
+      "Transform your productivity with Todoly's beautiful, intuitive task manager. Free forever plan available.",
+    url: "/",
+    siteName: "Todoly",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "TaskApp - Task Management Dashboard",
+        alt: "Todoly - Task Management Dashboard",
       },
     ],
     locale: "en_US",
@@ -45,27 +43,14 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TaskApp - Beautiful Task Management for Everyone",
+    title: "Todoly - Beautiful Task Management for Everyone",
     description:
-      "Transform your productivity with our beautiful, intuitive task manager. Free forever plan available.",
+      "Transform your productivity with Todoly's beautiful, intuitive task manager. Free forever plan available.",
     images: ["/og-image.png"],
-    creator: "@taskapp",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
+    creator: "@todoly",
   },
   verification: {
     google: "google-site-verification-code",
-    // yandex: "yandex-verification-code",
-    // other: "other-verification-code",
   },
 };
 
