@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -134,7 +135,7 @@ export function CreateTaskDialog({
         due_date: data.due_date,
       },
       {
-        onSuccess: async (response: any) => {
+        onSuccess: async (response: { data?: { id: string } }) => {
           // Assign tags if any were selected
           if (selectedTagIds.length > 0 && response?.data?.id) {
             try {
@@ -161,7 +162,7 @@ export function CreateTaskDialog({
           setDueDate(null);
           setSelectedTagIds([]);
         },
-        onError: (error: any) => {
+        onError: (error: { response?: { data?: { error?: { message?: string } } } }) => {
           toast({
             title: "Error",
             description:
@@ -200,6 +201,9 @@ export function CreateTaskDialog({
         <DialogContent className="sm:max-w-[500px] max-sm:h-full max-sm:w-full max-sm:max-w-full">
           <DialogHeader>
             <DialogTitle>Create New Task</DialogTitle>
+            <DialogDescription>
+              Fill in the details to create a new task
+            </DialogDescription>
           </DialogHeader>
 
           <div className="mb-4">

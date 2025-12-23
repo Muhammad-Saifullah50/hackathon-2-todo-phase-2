@@ -1,45 +1,17 @@
-"use client";
-
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { getSession } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
-export default function Navbar() {
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
-
-  const handleSignOut = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/");
-        },
-      },
-    });
-  };
+export default async function Navbar() {
+  const session = await getSession();
 
   return (
-    <nav className="border-b bg-background px-4 py-3 flex items-center justify-between">
-      <Link href="/" className="text-xl font-bold">
+    <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 flex items-center justify-between">
+      <Link href={session ? "/tasks" : "/"} className="text-xl font-bold md:ml-0 ml-10">
         TodoApp
       </Link>
       <div className="flex items-center gap-4">
-        {isPending ? (
-          <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
-        ) : session ? (
-          <>
-            <Button variant="ghost" asChild>
-              <Link href="/tasks">My Tasks</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link href="/tasks/dashboard">Dashboard</Link>
-            </Button>
-            <Button variant="outline" onClick={handleSignOut}>
-              Logout
-            </Button>
-          </>
-        ) : (
+        {!session && (
           <>
             <Button variant="ghost" asChild>
               <Link href="/sign-in">Login</Link>

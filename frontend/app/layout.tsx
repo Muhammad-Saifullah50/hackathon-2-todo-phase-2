@@ -5,6 +5,7 @@ import Providers from '@/components/providers';
 import Navbar from '@/components/navbar';
 import { Toaster } from '@/components/ui/toaster';
 import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts-provider';
+import { MobileProvider } from '@/components/mobile/MobileProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,10 +24,13 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <KeyboardShortcutsProvider>
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col overflow-x-hidden">
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <div className="flex-1 overflow-x-hidden">
+                {children}
+              </div>
             </div>
+            <MobileProvider />
             <Toaster />
           </KeyboardShortcutsProvider>
         </Providers>

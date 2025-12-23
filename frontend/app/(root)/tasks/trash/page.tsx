@@ -1,8 +1,4 @@
-/**
- * Trash Page - View and manage deleted tasks (SERVER COMPONENT).
- * Displays deleted tasks with restore and permanent delete options.
- * Server Component by default - only imports Client Components.
- */
+
 
 import { TrashView } from "@/components/tasks/TrashView";
 import { Button } from "@/components/ui/button";

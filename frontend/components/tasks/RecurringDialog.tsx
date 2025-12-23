@@ -99,7 +99,7 @@ export function RecurringDialog({ open, onOpenChange, taskId, mode = "create" }:
           {/* Frequency Selection */}
           <div className="space-y-2">
             <Label htmlFor="frequency">Repeat</Label>
-            <Select value={frequency} onValueChange={(value: any) => setFrequency(value)}>
+            <Select value={frequency} onValueChange={(value: "daily" | "weekly" | "monthly") => setFrequency(value)}>
               <SelectTrigger id="frequency">
                 <SelectValue placeholder="Select frequency" />
               </SelectTrigger>

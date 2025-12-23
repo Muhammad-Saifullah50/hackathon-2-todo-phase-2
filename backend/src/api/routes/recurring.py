@@ -1,9 +1,10 @@
 """API routes for task recurrence management."""
 
+import logging
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 
 from src.auth import get_current_user
@@ -18,6 +19,7 @@ from src.schemas.recurring_schemas import (
 )
 from src.services.recurring_service import RecurringService
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/tasks", tags=["recurring"])
 
 
@@ -40,21 +42,35 @@ async def get_recurrence_pattern(
     Raises:
         HTTPException: If task not found, not owned by user, or no pattern exists
     """
-    # Verify task exists and belongs to user
-    task = db.get(Task, task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    if task.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to access this task")
+    try:
+        # Verify task exists and belongs to user
+        task = db.get(Task, task_id)
+        if not task:
+            logger.warning(f"Task not found: task_id={task_id}, user_id={current_user.id}")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+        if task.user_id != current_user.id:
+            logger.warning(f"Unauthorized access to task: task_id={task_id}, user_id={current_user.id}")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this task")
 
-    # Get pattern
-    service = RecurringService(db)
-    pattern = service.get_recurrence_pattern(task_id)
+        # Get pattern
+        service = RecurringService(db)
+        pattern = service.get_recurrence_pattern(task_id)
 
-    if not pattern:
-        raise HTTPException(status_code=404, detail="No recurrence pattern found for this task")
+        if not pattern:
+            logger.info(f"No recurrence pattern found: task_id={task_id}")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No recurrence pattern found for this task")
 
-    return RecurrencePatternResponse.model_validate(pattern)
+        logger.info(f"Recurrence pattern retrieved: task_id={task_id}, user_id={current_user.id}")
+        return RecurrencePatternResponse.model_validate(pattern)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get recurrence pattern: task_id={task_id}, error={str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve recurrence pattern. Please try again later."
+        )
 
 
 @router.post("/{task_id}/recurrence", response_model=RecurrencePatternResponse, status_code=201)

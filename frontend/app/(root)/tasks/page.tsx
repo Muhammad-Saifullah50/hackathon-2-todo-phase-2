@@ -9,7 +9,7 @@ import { TaskList } from "@/components/tasks/TaskList";
 
 export default function TasksPage() {
   return (
-    <div className="container max-w-7xl mx-auto py-6 px-4">
+    <div className="container max-w-7xl mx-auto px-4 pt-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Tasks</h1>

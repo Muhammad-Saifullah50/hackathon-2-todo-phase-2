@@ -29,8 +29,10 @@ import {
 } from "@dnd-kit/sortable";
 import { useTasks, useBulkToggle, useBulkDelete, useReorderTasks } from "@/hooks/useTasks";
 import { useSearchInput } from "@/hooks/useSearch";
+import { useIsMobile } from "@/hooks/useMobile";
 import { TaskCard } from "./TaskCard";
 import { SortableTaskCard } from "./SortableTaskCard";
+import { SwipeableTaskCard } from "@/components/mobile/SwipeableTaskCard";
 import { TaskFilters } from "./TaskFilters";
 import { Pagination } from "./Pagination";
 import { BulkActions } from "./BulkActions";
@@ -69,6 +71,9 @@ export function TaskList() {
 
   // Check for reduced motion preference
   const prefersReducedMotion = useReducedMotion();
+
+  // Mobile detection for swipeable cards
+  const isMobile = useIsMobile();
 
   // Drag and drop state
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -555,22 +560,34 @@ export function TaskList() {
                       className="flex items-start gap-2"
                       onClick={() => setSelectedTaskIndex(index)}
                     >
-                      {/* Bulk Selection Checkbox */}
-                      <Checkbox
-                        checked={selectedTaskIds.has(task.id)}
-                        onCheckedChange={() => toggleTaskSelection(task.id)}
-                        className="mt-4"
-                        aria-label={`Select ${task.title}`}
-                      />
-                      <div className="flex-1">
-                        <SortableTaskCard
-                          task={task}
-                          variant={layout}
-                          searchQuery={debouncedValue}
-                          isDragDisabled={isDragDisabled}
-                          isSelected={isKeyboardSelected}
-                          onSelect={() => setSelectedTaskIndex(index)}
+                      {/* Bulk Selection Checkbox - Hidden on mobile when using swipe gestures */}
+                      {!isMobile && (
+                        <Checkbox
+                          checked={selectedTaskIds.has(task.id)}
+                          onCheckedChange={() => toggleTaskSelection(task.id)}
+                          className="mt-4"
+                          aria-label={`Select ${task.title}`}
                         />
+                      )}
+                      <div className="flex-1">
+                        {/* Use SwipeableTaskCard on mobile, SortableTaskCard on desktop */}
+                        {isMobile ? (
+                          <SwipeableTaskCard
+                            task={task}
+                            variant={layout}
+                            searchQuery={debouncedValue}
+                            disabled={isDragDisabled}
+                          />
+                        ) : (
+                          <SortableTaskCard
+                            task={task}
+                            variant={layout}
+                            searchQuery={debouncedValue}
+                            isDragDisabled={isDragDisabled}
+                            isSelected={isKeyboardSelected}
+                            onSelect={() => setSelectedTaskIndex(index)}
+                          />
+                        )}
                       </div>
                     </motion.div>
                   );

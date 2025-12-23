@@ -402,7 +402,7 @@
 - [X] T196 [US13] Add "Use Template" button to CreateTaskDialog.tsx opening TemplateDialog
 - [X] T197 [US13] Add "Save as Template" button to EditTaskDialog.tsx opening SaveTemplateDialog
 - [X] T198 [US13] Implement template application logic in frontend: populate form fields from selected template
-- [ ] T199 [US13] Add template management section to settings page for editing/deleting templates
+- [X] T199 [US13] Add template management section to settings page for editing/deleting templates
 
 **Checkpoint**: At this point, User Story 13 should be fully functional - templates can be saved from tasks, new tasks can be created from templates, template management works
 
@@ -439,131 +439,91 @@
 
 ### Implementation for User Story 15
 
-- [ ] T210 [P] [US15] Create frontend/components/tasks/SwipeableTaskCard.tsx wrapping TaskCard with useSwipe from @use-gesture/react
-- [ ] T211 [US15] Implement swipe left gesture to reveal delete button in SwipeableTaskCard.tsx
-- [ ] T212 [US15] Implement swipe right gesture to toggle task completion in SwipeableTaskCard.tsx
-- [ ] T213 [P] [US15] Create frontend/components/mobile/BottomNav.tsx with icons for Tasks/Dashboard/Calendar/Settings
-- [ ] T214 [P] [US15] Create frontend/components/mobile/FloatingActionButton.tsx fixed bottom-right opening CreateTaskDialog
-- [ ] T215 [US15] Add mobile detection in frontend/app/layout.tsx to conditionally render BottomNav
-- [ ] T216 [US15] Replace TaskCard with SwipeableTaskCard in TaskList.tsx for mobile viewports
-- [ ] T217 [US15] Ensure all tap targets are minimum 44x44 pixels in mobile components
-- [ ] T218 [US15] Add haptic feedback on swipe actions for iOS/Android devices
-- [ ] T219 [US15] Prevent swipe gesture conflicts with horizontal scrolling in kanban/calendar views
-- [ ] T220 [US15] Add visual swipe indicator (colored background) during swipe in SwipeableTaskCard.tsx
+- [X] T210 [P] [US15] Create frontend/components/tasks/SwipeableTaskCard.tsx wrapping TaskCard with useSwipe from @use-gesture/react
+- [X] T211 [US15] Implement swipe left gesture to reveal delete button in SwipeableTaskCard.tsx
+- [X] T212 [US15] Implement swipe right gesture to toggle task completion in SwipeableTaskCard.tsx
+- [X] T213 [P] [US15] Create frontend/components/mobile/BottomNav.tsx with icons for Tasks/Dashboard/Calendar/Settings
+- [X] T214 [P] [US15] Create frontend/components/mobile/FloatingActionButton.tsx fixed bottom-right opening CreateTaskDialog
+- [X] T215 [US15] Add mobile detection in frontend/app/layout.tsx to conditionally render BottomNav
+- [X] T216 [US15] Replace TaskCard with SwipeableTaskCard in TaskList.tsx for mobile viewports
+- [X] T217 [US15] Ensure all tap targets are minimum 44x44 pixels in mobile components
+- [X] T218 [US15] Add haptic feedback on swipe actions for iOS/Android devices
+- [X] T219 [US15] Prevent swipe gesture conflicts with horizontal scrolling in kanban/calendar views
+- [X] T220 [US15] Add visual swipe indicator (colored background) during swipe in SwipeableTaskCard.tsx
 
 **Checkpoint**: At this point, User Story 15 should be fully functional - mobile swipe gestures work, bottom nav appears on mobile, FAB creates tasks, tap targets meet accessibility
 
 ---
 
-## Phase 18: User Story 16 - Theme Picker and Personalization (Priority: P3)
 
-**Goal**: Allow users to choose from multiple theme palettes (Ocean, Sunset, Forest, Monochrome) and custom accent colors with persistence
-
-**Independent Test**: Open theme picker, select different theme and verify all UI updates, choose custom accent color and verify primary buttons use new color, refresh and verify theme persists
-
-
-
-
-
-### Implementation for User Story 16
-
-- [ ] T221 [P] [US16] Create Alembic migration: Create user_preferences table (id, user_id FK UNIQUE, theme VARCHAR(50), accent_color VARCHAR(7), default_view VARCHAR(50), default_sort VARCHAR(50), show_completed_tasks BOOLEAN, enable_animations BOOLEAN, onboarding_completed BOOLEAN, timestamps) in backend/alembic/versions/
-- [ ] T222 [P] [US16] Run alembic upgrade head to apply preferences migration
-- [ ] T223 [P] [US16] Create backend/src/models/user_preferences.py with UserPreferences model (id, user_id, theme, accent_color, default_view, default_sort, show_completed_tasks, enable_animations, onboarding_completed, timestamps)
-- [ ] T224 [P] [US16] Create backend/src/schemas/preferences_schemas.py with PreferencesUpdate, PreferencesResponse schemas
-- [ ] T225 [US16] Create backend/src/services/preferences_service.py with get/update operations and default creation on user signup
-- [ ] T226 [P] [US16] Add GET /api/v1/preferences endpoint in backend/src/api/routes/preferences.py
-- [ ] T227 [P] [US16] Add PATCH /api/v1/preferences endpoint in backend/src/api/routes/preferences.py
-- [ ] T228 [P] [US16] Add PATCH /api/v1/preferences/theme endpoint in backend/src/api/routes/preferences.py for theme-only updates
-- [ ] T229 [P] [US16] Create frontend/components/settings/ThemePicker.tsx with theme preview cards (Ocean, Sunset, Forest, Monochrome, System)
-- [ ] T230 [P] [US16] Create frontend/components/settings/AccentColorPicker.tsx with color swatches and custom color input
-- [ ] T231 [P] [US16] Create frontend/hooks/usePreferences.ts with queries and mutations for user preferences
-- [ ] T232 [US16] Update frontend/lib/theme-store.ts Zustand store to sync with backend preferences
-- [ ] T233 [US16] Define CSS custom properties for each theme in frontend/app/globals.css
-- [ ] T234 [US16] Implement theme switching logic in frontend/app/layout.tsx applying theme class to root element
-- [ ] T235 [US16] Add dark mode variants for each theme in frontend/app/globals.css
-- [ ] T236 [US16] Persist theme preference to localStorage and backend in usePreferences mutations
-- [ ] T237 [US16] Create settings page in frontend/app/settings/page.tsx with ThemePicker and 
-
-
-
-**Checkpoint**: At this point, User Story 16 should be fully functional - themes can be selected and persist, accent colors customize UI, dark mode works per theme
-
----
-
-## Phase 19: User Story 17 - Enhanced Empty States with Illustrations (Priority: P3)
+## Phase 18: User Story 16 - Enhanced Empty States with Illustrations (Priority: P3)
 
 **Goal**: Display beautiful illustrated empty states with helpful messages for zero tasks, no search results, empty trash, no data scenarios
 
 **Independent Test**: Clear all tasks and verify illustrated empty state with "Create your first task" CTA, apply filter with no matches and verify "No tasks match" message, view trash when empty and verify empty trash illustration
 
-### Implementation for User Story 17
+### Implementation for User Story 16
 
-- [ ] T238 [P] [US17] Create frontend/components/ui/empty-state.tsx reusable component with illustration, heading, description, action button props
-- [ ] T239 [P] [US17] Add empty state SVG illustrations to frontend/public/illustrations/ (no-tasks.svg, no-results.svg, empty-trash.svg, no-data.svg)
-- [ ] T240 [P] [US17] Update TaskList.tsx to show EmptyState when tasks array is empty (no active filters)
-- [ ] T241 [P] [US17] Update TaskList.tsx to show EmptyState with "No tasks match" when filtered list is empty
-- [ ] T242 [P] [US17] Update TrashView.tsx in frontend/app/tasks/trash/page.tsx to show EmptyState when trash is empty
-- [ ] T243 [P] [US17] Update SearchBar results to show EmptyState with search term when no search matches
-- [ ] T244 [P] [US17] Update DashboardStatsCards.tsx to show "0" with empty state message when no tasks exist
-- [ ] T245 [P] [US17] Update charts in dashboard to show empty state placeholders when no data available
-- [ ] T246 [US17] Add contextual CTAs to each empty state (e.g., "Create Task" button in no-tasks state, "Clear Filters" in no-results state)
+- [ ] T221 [P] [US16] Create frontend/components/ui/empty-state.tsx reusable component with illustration, heading, description, action button props
+- [ ] T222 [P] [US16] Add empty state SVG illustrations to frontend/public/illustrations/ (no-tasks.svg, no-results.svg, empty-trash.svg, no-data.svg)
+- [ ] T223 [P] [US16] Update TaskList.tsx to show EmptyState when tasks array is empty (no active filters)
+- [ ] T224 [P] [US16] Update TaskList.tsx to show EmptyState with "No tasks match" when filtered list is empty
+- [ ] T225 [P] [US16] Update TrashView.tsx in frontend/app/tasks/trash/page.tsx to show EmptyState when trash is empty
+- [ ] T226 [P] [US16] Update SearchBar results to show EmptyState with search term when no search matches
+- [ ] T227 [P] [US16] Update DashboardStatsCards.tsx to show "0" with empty state message when no tasks exist
+- [ ] T228 [P] [US16] Update charts in dashboard to show empty state placeholders when no data available
+- [ ] T229 [US16] Add contextual CTAs to each empty state (e.g., "Create Task" button in no-tasks state, "Clear Filters" in no-results state)
 
-**Checkpoint**: At this point, User Story 17 should be fully functional - empty states appear in all relevant scenarios with illustrations and helpful CTAs
+**Checkpoint**: At this point, User Story 16 should be fully functional - empty states appear in all relevant scenarios with illustrations and helpful CTAs
 
 ---
 
-## Phase 20: User Story 18 - Onboarding Tour for New 
-
-
-
- (Priority: P3)
+## Phase 19: User Story 17 - Onboarding Tour for New Users (Priority: P3)
 
 **Goal**: Show guided tour to first-time users after signup highlighting key features (create task, filters, views) with spotlight overlays
 
 **Independent Test**: Create new test account, verify onboarding overlay appears on first login, step through tour and verify spotlight highlights each feature in sequence, skip tour and verify tour doesn't re-trigger unless manually restarted
 
-### Implementation for User Story 18
+### Implementation for User Story 17
 
-- [ ] T247 [P] [US18] Create frontend/components/onboarding/OnboardingTour.tsx with step state management and spotlight overlay
-- [ ] T248 [P] [US18] Create frontend/components/onboarding/TourStep.tsx with tooltip positioning and next/prev/skip buttons
-- [ ] T249 [P] [US18] Define tour steps in frontend/lib/onboarding-steps.ts (welcome → create task → filters → views → completion)
-- [ ] T250 [US18] Implement spotlight effect in OnboardingTour.tsx with overlay and highlight cutout
-- [ ] T251 [US18] Add onboarding_completed check in frontend/app/layout.tsx to trigger tour for new users
-- [ ] T252 [US18] Add smooth transitions between tour steps with scroll-into-view for highlighted elements
-- [ ] T253 [US18] Implement "Skip Tour" button updating onboarding_completed preference via API
-- [ ] T254 [US18] Implement "Start Tour" button in user menu dropdown for manually restarting tour
-- [ ] T255 [US18] Add confetti animation on tour completion using frontend/lib/animations.ts
-- [ ] T256 [US18] Update backend/src/services/preferences_service.py to set onboarding_completed=false for new users
-- [ ] T257 [US18] Add PATCH /api/v1/preferences/onboarding endpoint to mark tour complete
+- [ ] T230 [P] [US17] Create frontend/components/onboarding/OnboardingTour.tsx with step state management and spotlight overlay
+- [ ] T231 [P] [US17] Create frontend/components/onboarding/TourStep.tsx with tooltip positioning and next/prev/skip buttons
+- [ ] T232 [P] [US17] Define tour steps in frontend/lib/onboarding-steps.ts (welcome → create task → filters → views → completion)
+- [ ] T233 [US17] Implement spotlight effect in OnboardingTour.tsx with overlay and highlight cutout
+- [ ] T234 [US17] Add onboarding_completed check in frontend/app/layout.tsx to trigger tour for new users
+- [ ] T235 [US17] Add smooth transitions between tour steps with scroll-into-view for highlighted elements
+- [ ] T236 [US17] Implement "Skip Tour" button using localStorage to persist tour completion
+- [ ] T237 [US17] Implement "Start Tour" button in user menu dropdown for manually restarting tour
+- [ ] T238 [US17] Add confetti animation on tour completion using frontend/lib/animations.ts
 
-**Checkpoint**: At this point, User Story 18 should be fully functional - onboarding tour appears for new users, spotlight highlights features, tour can be skipped/restarted
+**Checkpoint**: At this point, User Story 17 should be fully functional - onboarding tour appears for new users, spotlight highlights features, tour can be skipped/restarted
 
 ---
 
-## Phase 21: Polish & Cross-Cutting Concerns
+## Phase 20:
+Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories and final quality assurance
 
-- [ ] T258 [P] Update all API endpoints in backend to include proper error handling and logging
-- [ ] T259 [P] Add composite database indexes for performance: (user_id, deleted_at), (user_id, due_date), (user_id, status)
-- [ ] T260 [P] Run backend test suite and ensure ≥80% coverage: pytest --cov=src tests/
-- [ ] T261 [P] Run frontend type checking and fix any type errors: npm run type-check
-- [ ] T262 [P] Run Lighthouse audit on landing page and optimize for 90+ score (performance, accessibility, SEO)
-- [ ] T263 [P] Add loading skeletons to all components that fetch data
-- [ ] T264 [P] Implement error boundaries in frontend/app/error.tsx and frontend/app/tasks/error.tsx
-- [ ] T265 [P] Add rate limiting to search endpoint (300 requests per minute per user)
-- [ ] T266 [P] Optimize bundle size: analyze frontend build and lazy load heavy components
-- [ ] T267 [P] Add API response caching headers for static data (tags, templates, preferences)
-- [ ] T268 [P] Update frontend/README.md with feature documentation and setup instructions
-- [ ] T269 [P] Update backend/README.md with new API endpoint documentation
-- [ ] T270 [P] Run E2E test suite with Playwright covering all critical user flows
-- [ ] T271 [P] Perform security audit: check for SQL injection, XSS, CSRF vulnerabilities
-- [ ] T272 [P] Verify WCAG 2.1 AA compliance: run axe-core accessibility tests
-- [ ] T273 [P] Test application on multiple browsers (Chrome, Safari, Firefox, Edge)
-- [ ] T274 [P] Test responsive design on mobile devices (iOS Safari, Android Chrome)
-- [ ] T275 [P] Implement prefers-reduced-motion CSS queries for all animations
-- [ ] T276 Run quickstart.md validation: follow all instructions and verify completeness
+- [ ] T239 [P] Update all API endpoints in backend to include proper error handling and logging
+- [ ] T240 [P] Add composite database indexes for performance: (user_id, deleted_at), (user_id, due_date), (user_id, status)
+- [ ] T241 [P] Run backend test suite and ensure ≥80% coverage: pytest --cov=src tests/
+- [ ] T242 [P] Run frontend type checking and fix any type errors: npm run type-check
+- [ ] T243 [P] Run Lighthouse audit on landing page and optimize for 90+ score (performance, accessibility, SEO)
+- [ ] T244 [P] Add loading skeletons to all components that fetch data
+- [ ] T245 [P] Implement error boundaries in frontend/app/error.tsx and frontend/app/tasks/error.tsx
+- [ ] T246 [P] Add rate limiting to search endpoint (300 requests per minute per user)
+- [ ] T247 [P] Optimize bundle size: analyze frontend build and lazy load heavy components
+- [ ] T248 [P] Add API response caching headers for static data (tags, templates, preferences)
+- [ ] T249 [P] Update frontend/README.md with feature documentation and setup instructions
+- [ ] T250 [P] Update backend/README.md with new API endpoint documentation
+- [ ] T251 [P] Run E2E test suite with Playwright covering all critical user flows
+- [ ] T252 [P] Perform security audit: check for SQL injection, XSS, CSRF vulnerabilities
+- [ ] T253 [P] Verify WCAG 2.1 AA compliance: run axe-core accessibility tests
+- [ ] T254 [P] Test application on multiple browsers (Chrome, Safari, Firefox, Edge)
+- [ ] T255 [P] Test responsive design on mobile devices (iOS Safari, Android Chrome)
+- [ ] T256 [P] Implement prefers-reduced-motion CSS queries for all animations
+- [ ] T257 Run quickstart.md validation: follow all instructions and verify completeness
 
 ---
 
@@ -573,13 +533,13 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3-20)**: All depend on Foundational phase completion
+- **User Stories (Phase 3-19)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if team capacity allows)
   - Or sequentially in priority order (P1 → P2 → P3)
   - **P1 Stories (US1-US3)**: Critical for MVP - complete these first
   - **P2 Stories (US4-US8)**: Enhanced functionality - complete after P1
-  - **P3 Stories (US9-US18)**: Advanced features - complete after P2
-- **Polish (Phase 21)**: Depends on all desired user stories being complete
+  - **P3 Stories (US9-US17)**: Advanced features - complete after P2
+- **Polish (Phase 20)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
@@ -603,9 +563,8 @@
 - **User Story 13 (Templates)**: Depends on US3 (tags) and US10 (subtasks) for full template functionality
 - **User Story 14 (Drag Reorder)**: Can start after Foundational - No dependencies on other stories
 - **User Story 15 (Mobile)**: Can start after Foundational - Integrates with existing UI
-- **User Story 16 (Themes)**: Can start after Foundational - Affects all UI components
-- **User Story 17 (Empty States)**: Can start after Foundational - Integrates with all views
-- **User Story 18 (Onboarding)**: Depends on US16 (preferences) for completion tracking
+- **User Story 16 (Empty States)**: Can start after Foundational - Integrates with all views
+- **User Story 17 (Onboarding)**: Can start after Foundational - Uses localStorage for completion tracking
 
 ### Within Each User Story
 
@@ -622,7 +581,7 @@
 - **Within User Stories**: All tasks marked [P] can run in parallel (e.g., all API endpoints, all frontend components)
 - **P1 Stories**: US1, US2, US3 can be developed in parallel by 3 developers
 - **P2 Stories**: US4-US8 can be developed in parallel after P1 complete
-- **P3 Stories**: US9-US18 can be developed in parallel after P2 complete
+- **P3 Stories**: US9-US17 can be developed in parallel after P2 complete
 
 ---
 
@@ -671,7 +630,7 @@ Task T057: TagManagement component
 1. Complete Setup + Foundational → Foundation ready
 2. Add P1 Stories (US1-US3) → Test independently → Deploy/Demo (MVP!)
 3. Add P2 Stories (US4-US8) → Test independently → Deploy/Demo (Enhanced version)
-4. Add P3 Stories (US9-US18) → Test independently → Deploy/Demo (Full-featured version)
+4. Add P3 Stories (US9-US17) → Test independently → Deploy/Demo (Full-featured version)
 5. Complete Polish phase → Final quality assurance → Production release
 
 ### Parallel Team Strategy
@@ -700,12 +659,12 @@ With 5 developers for enhanced version:
 
 ## Summary
 
-- **Total Tasks**: 276 tasks
+- **Total Tasks**: 257 tasks
 - **P1 Tasks (MVP)**: 62 tasks (US1: 12, US2: 12, US3: 23, Setup: 6, Foundational: 9)
-- **P2 Tasks (Enhanced)**: 88 tasks (US4: 11, US5: 13, US6: 12, US7: 10, US8: 12)
-- **P3 Tasks (Advanced)**: 108 tasks (US9: 13, US10: 20, US11: 8, US12: 19, US13: 20, US14: 10, US15: 11, US16: 17, US17: 9, US18: 11)
+- **P2 Tasks (Enhanced)**: 58 tasks (US4: 11, US5: 13, US6: 12, US7: 10, US8: 12)
+- **P3 Tasks (Advanced)**: 118 tasks (US9: 13, US10: 20, US11: 8, US12: 19, US13: 20, US14: 10, US15: 11, US16: 9, US17: 9)
 - **Polish Tasks**: 19 tasks (cross-cutting concerns)
-- **Parallel Opportunities**: 180+ tasks marked [P] can run in parallel within their phase
+- **Parallel Opportunities**: 160+ tasks marked [P] can run in parallel within their phase
 - **Independent Stories**: Each user story can be tested and deployed independently
 - **MVP Scope**: Phase 1-5 (Setup + Foundational + US1-US3) = 62 tasks for minimum viable product
 
@@ -714,7 +673,7 @@ With 5 developers for enhanced version:
 ## Notes
 
 - [P] tasks = different files, no dependencies within phase
-- [Story] label maps task to specific user story for traceability (US1-US18)
+- [Story] label maps task to specific user story for traceability (US1-US17)
 - Each user story should be independently completable and testable
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently

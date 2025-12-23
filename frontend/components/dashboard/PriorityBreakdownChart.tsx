@@ -135,10 +135,10 @@ export function PriorityBreakdownChart() {
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "8px",
               }}
-              formatter={(value: number, name: string, props: any) => [
-                `${value} tasks (${props.payload.percentage.toFixed(1)}%)`,
-                name,
-              ]}
+              formatter={(value, name, props) => {
+                const percentage = (props as { payload: { percentage: number } }).payload?.percentage ?? 0;
+                return [`${value} tasks (${percentage.toFixed(1)}%)`, name];
+              }}
             />
             <Legend
               wrapperStyle={{

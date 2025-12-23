@@ -40,14 +40,14 @@ export function CalendarView() {
 
   const { mutate: updateTask } = useUpdateTask();
 
-  const tasks = tasksData?.tasks || [];
+  const tasks = useMemo(() => tasksData?.data?.tasks || [], [tasksData?.data?.tasks]);
 
   // Calculate calendar days (including leading/trailing days from adjacent months)
   const calendarDays = useMemo(() => {
     const start = startOfWeek(monthStart);
     const end = endOfWeek(monthEnd);
     return eachDayOfInterval({ start, end });
-  }, [currentMonth]);
+  }, [monthStart, monthEnd]);
 
   // Group tasks by date
   const tasksByDate = useMemo(() => {
