@@ -61,7 +61,7 @@ export function useAnalyticsStats() {
       const response = await apiClient.get("/api/v1/tasks/analytics/stats");
       return response.data;
     },
-    staleTime: 30000, // Cache for 30 seconds
+    staleTime: 2000, // Cache for 2 seconds - short stale time for real-time dashboard updates
     refetchOnWindowFocus: true,
     enabled: !!session, // Only fetch when authenticated
   });
@@ -82,7 +82,7 @@ export function useCompletionTrend(days: number = 7) {
       );
       return response.data;
     },
-    staleTime: 60000, // Cache for 1 minute
+    staleTime: 2000, // Cache for 2 seconds - short stale time for real-time dashboard updates
     refetchOnWindowFocus: true,
     enabled: !!session, // Only fetch when authenticated
   });
@@ -100,7 +100,7 @@ export function usePriorityBreakdown() {
       const response = await apiClient.get("/api/v1/tasks/analytics/priority-breakdown");
       return response.data;
     },
-    staleTime: 30000, // Cache for 30 seconds
+    staleTime: 2000, // Cache for 2 seconds - short stale time for real-time dashboard updates
     refetchOnWindowFocus: true,
     enabled: !!session, // Only fetch when authenticated
   });

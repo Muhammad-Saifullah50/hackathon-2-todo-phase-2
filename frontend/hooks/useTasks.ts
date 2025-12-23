@@ -114,6 +114,8 @@ export function useCreateTask() {
     onSuccess: () => {
       // Invalidate and refetch all task queries
       queryClient.invalidateQueries({ queryKey: tasksKeys.all });
+      // Invalidate analytics to update dashboard stats
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
     },
   });
 }
@@ -214,6 +216,8 @@ export function useUpdateTask() {
     onSuccess: () => {
       // Invalidate and refetch all task queries
       queryClient.invalidateQueries({ queryKey: tasksKeys.all });
+      // Invalidate analytics to update dashboard stats
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
 
       // Show success toast
       toast({
@@ -297,6 +301,8 @@ export function useToggleTask() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.all });
+      // Invalidate analytics to update dashboard stats
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
     },
   });
 }
@@ -363,6 +369,8 @@ export function useBulkToggle() {
 
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.all });
+      // Invalidate analytics to update dashboard stats
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
 
       const count = data.data?.updated_count || 0;
       toast({
@@ -429,6 +437,8 @@ export function useDeleteTask() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.all });
+      // Invalidate analytics to update dashboard stats
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
 
       toast({
         title: "Task moved to trash",
@@ -487,6 +497,8 @@ export function useBulkDelete() {
 
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.all });
+      // Invalidate analytics to update dashboard stats
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
 
       const count = data.data?.updated_count || 0;
       toast({
@@ -556,6 +568,8 @@ export function useRestoreTask() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.all });
+      // Invalidate analytics to update dashboard stats
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
 
       toast({
         title: "Task restored",
@@ -612,6 +626,8 @@ export function usePermanentDelete() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.all });
+      // Invalidate analytics to update dashboard stats
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
 
       toast({
         title: "Task permanently deleted",
